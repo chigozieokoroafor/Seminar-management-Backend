@@ -1,8 +1,9 @@
 const { conn } = require("./conn");
 const { DataTypes } = require("sequelize");
+const { DEFAULT_TABLE_NAMES } = require("../helpers/consts")
 
 
-const users = conn.define("users", {
+const users = conn.define(DEFAULT_TABLE_NAMES.users, {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -36,8 +37,8 @@ const users = conn.define("users", {
     "email": {
         type: DataTypes.STRING(255),
     },
-    phone:{
-        type:DataTypes.STRING(14)
+    phone: {
+        type: DataTypes.STRING(14)
     },
     "img": {
         type: DataTypes.BLOB
@@ -94,162 +95,176 @@ const staff = conn.define("staff", {
         allowNull: false,
         unique: true
     },
-    isSupervisor:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:false
+    isSupervisor: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     },
-    isSuperAdmin:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:false
+    isSuperAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
     }
 })
 
 const allCourses = conn.define("allCourses", {
-    code:{
+    code: {
         type: DataTypes.STRING(10)
     },
-    title:{
-        type:DataTypes.STRING(255)
+    title: {
+        type: DataTypes.STRING(255)
     }
 })
 
-const studentCourses = (year) => conn.define("studentCourses", {
-    sid:{
+const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses + year, {
+    sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    course:{
-        type:DataTypes.JSON
+    course: {
+        type: DataTypes.JSON
     },
-    score:{
-        type:DataTypes.INTEGER
+    score: {
+        type: DataTypes.INTEGER
     },
-    grade:{
-      type:DataTypes.STRING(3)  
+    grade: {
+        type: DataTypes.STRING(3)
     },
-    session:{
-        type:DataTypes.STRING(15)
+    session: {
+        type: DataTypes.STRING(15)
     }
-    })
+}, {
+    tableName: DEFAULT_TABLE_NAMES.seminars + year
+})
 
 
 const projects = conn.define("projects", {
 
-    "sid":{
+    "sid": {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    "topic":{
+    "topic": {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    "session":{
-        type:DataTypes.STRING(15)
+    "session": {
+        type: DataTypes.STRING(15)
     },
-    "supervisor":{
+    "supervisor": {
         type: DataTypes.STRING(255),
         allowNull: false,
     }
 })
 
-const seminars = conn.define("seminars", {
-    scheduledDate:{
-        type:DataTypes.DATE
+const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + year, {
+    scheduledDate: {
+        type: DataTypes.DATE
     },
-    venue:{
+    venue: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    session:{
-        type:DataTypes.STRING(15)
+    session: {
+        type: DataTypes.STRING(15)
     },
-    isDone:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:false
-        
+    isDone: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+
     }
+}, {
+    tableName: DEFAULT_TABLE_NAMES.seminars + year
 })
 
-const conceptT = conn.define("conceptT", {
-    sid:{
+const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + year, {
+    sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    detail:{
-        type:DataTypes.JSON
+    detail: {
+        type: DataTypes.JSON
     },
-    isApproved:{
+    isApproved: {
         type: DataTypes.BOOLEAN
     },
-    supervisor:{
+    supervisor: {
         type: DataTypes.STRING(255),
         allowNull: false,
     }
+}, {
+    tableName: DEFAULT_TABLE_NAMES.conceptT + year
 })
 
-const progressT = conn.define("progressT", {
-    sid:{
-        type:DataTypes.STRING(255)
+const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + year, {
+    sid: {
+        type: DataTypes.STRING(255)
     },
-    detail:{
-        type:DataTypes.JSON
+    detail: {
+        type: DataTypes.JSON
     },
-    isApproved:{
+    isApproved: {
         type: DataTypes.BOOLEAN
     },
-    supervisor:{
+    supervisor: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    session:{
-        type:DataTypes.STRING(15)
+    session: {
+        type: DataTypes.STRING(15)
     }
+}, {
+    tableName: DEFAULT_TABLE_NAMES.progressT + year
 })
 
-const attendance = conn.define("attendance", {
-    sid:{
+const attendance = (year) => conn.define(DEFAULT_TABLE_NAMES.attendance + year, {
+    sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
     },
-    present:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:true
+    present: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     },
-    token:{
-        type:DataTypes.STRING(10)
+    token: {
+        type: DataTypes.STRING(10)
     },
-    seminarId:{
-        type:DataTypes.STRING()
+    seminarId: {
+        type: DataTypes.STRING()
     },
-    session:{
-        type:DataTypes.STRING(15)
+    session: {
+        type: DataTypes.STRING(15)
     }
+}, {
+    tableName: DEFAULT_TABLE_NAMES.attendance + year
 })
 
-const activity = conn.define("activity", {
-    sid:{
-      type:DataTypes.STRING(255)  
-    },
-    user:{
+const activity = (year) => conn.define(DEFAULT_TABLE_NAMES.activity + year, {
+    sid: {
         type: DataTypes.STRING(255)
     },
-    action:{
+    user: {
         type: DataTypes.STRING(255)
     },
-    meta:{
+    action: {
+        type: DataTypes.STRING(255)
+    },
+    meta: {
         type: DataTypes.STRING(255)
     }
-    
+
+}, {
+    tableName: DEFAULT_TABLE_NAMES.activity + year
 })
 
 const sessions = conn.define("sessions", {
-    session:{
-        type:DataTypes.STRING(15)
+    session: {
+        type: DataTypes.STRING(15)
     },
-    isActive:{
-        type:DataTypes.BOOLEAN,
-        defaultValue:true
+    isActive: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
     }
+}, {
+    tableName: DEFAULT_TABLE_NAMES.sessions
 })
 
 // const results = conn.define("results", {
@@ -260,15 +275,15 @@ const sessions = conn.define("sessions", {
 module.exports = {
     users,
     sessions,
-    seminars, 
+    seminars,
     activity,
     attendance,
-    progressT, 
-    conceptT, 
-    seminars, 
-    projects, 
-    studentCourses, 
-    allCourses, 
-    staff, 
+    progressT,
+    conceptT,
+    seminars,
+    projects,
+    studentCourses,
+    allCourses,
+    staff,
     students
 }

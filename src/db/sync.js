@@ -13,19 +13,19 @@ const { users,
     students } = require("./model")
 
 const sync = async (year) => {
-    users.sync({alter:true})
-    sessions.sync({alter:true})
-    seminars.sync({alter:true}) 
-    activity.sync({alter:true})
-    attendance.sync({alter:true})
-    progressT.sync({alter:true}) 
-    conceptT.sync({alter:true}) 
-    seminars.sync({alter:true}) 
-    projects.sync({alter:true}) 
-    
-    studentCourses.sync({alter:true}) 
-    allCourses.sync({alter:true}) 
-    staff.sync({alter:true}) 
-    students.sync({alter:true})
+    users.sync({ alter: true })
+    sessions.sync({ alter: true })
+    seminars(year).sync({ alter: true })
+    activity(year).sync({ alter: true })
+    attendance(year).sync({ alter: true })
+    progressT(year).sync({ alter: true })
+    conceptT(year).sync({ alter: true })
+    seminars(year).sync({ alter: true })
+    projects.sync({ alter: true })
+    studentCourses(year).sync({ alter: true })
+    allCourses.sync({ alter: true })
+    staff.sync({ alter: true })
+    students.sync({ alter: true })
 
 }
+
