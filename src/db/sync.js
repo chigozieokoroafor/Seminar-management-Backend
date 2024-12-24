@@ -29,3 +29,7 @@ const sync = async (year) => {
 
 }
 
+module.exports = {
+    model_sync:sync
+}
+
