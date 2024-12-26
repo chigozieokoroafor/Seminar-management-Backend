@@ -13,3 +13,17 @@ exports.DEFAULT_TABLE_NAMES = {
     staff: "staff",
     students: "students"
 }
+
+exports.P = {
+    first_name:"firstName",
+    last_name:"lastName",
+    middleName:"middleName",
+    surname:"surname",
+    netqueFormId:"netqueFormId",
+    formId:"formId",
+    program:"program",
+    programTitle:"programTitle",
+    sid:"sid",
+    uid:"uid"
+}
+

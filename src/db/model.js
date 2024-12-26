@@ -23,6 +23,10 @@ const users = conn.define(DEFAULT_TABLE_NAMES.users, {
         type: DataTypes.STRING(100),
         allowNull: false
     },
+    'middleName':{
+        type:DataTypes.STRING(100),
+        allowNull:false
+    },
     "designation": {
         type: DataTypes.STRING(15),
         defaultValue: "Mr"
@@ -65,6 +69,9 @@ const students = conn.define("students", {
         type: DataTypes.STRING(255),
         defaultValue: "MSC"
     },
+    programTitle:{
+        type: DataTypes.STRING(255)
+    },
     startSession: {
         type: DataTypes.STRING(15),
     },
@@ -76,6 +83,9 @@ const students = conn.define("students", {
     },
     endYear: {
         type: DataTypes.STRING(10)
+    },
+    netqueFormId:{
+        type:DataTypes.STRING(100)
     },
     isActive: {
         type: DataTypes.BOOLEAN,
@@ -114,7 +124,7 @@ const allCourses = conn.define("allCourses", {
     }
 })
 
-const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses + year, {
+const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -132,7 +142,7 @@ const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses 
         type: DataTypes.STRING(15)
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.seminars + year
+    tableName: DEFAULT_TABLE_NAMES.seminars + `_${year}`
 })
 
 
@@ -155,7 +165,7 @@ const projects = conn.define("projects", {
     }
 })
 
-const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + year, {
+const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + `_${year}`, {
     scheduledDate: {
         type: DataTypes.DATE
     },
@@ -172,10 +182,10 @@ const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + year, {
 
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.seminars + year
+    tableName: DEFAULT_TABLE_NAMES.seminars + `_${year}`
 })
 
-const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + year, {
+const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -191,10 +201,10 @@ const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + year, {
         allowNull: false,
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.conceptT + year
+    tableName: DEFAULT_TABLE_NAMES.conceptT + `_${year}`
 })
 
-const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + year, {
+const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255)
     },
@@ -212,10 +222,10 @@ const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + year, {
         type: DataTypes.STRING(15)
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.progressT + year
+    tableName: DEFAULT_TABLE_NAMES.progressT + `_${year}`
 })
 
-const attendance = (year) => conn.define(DEFAULT_TABLE_NAMES.attendance + year, {
+const attendance = (year) => conn.define(DEFAULT_TABLE_NAMES.attendance + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -234,10 +244,10 @@ const attendance = (year) => conn.define(DEFAULT_TABLE_NAMES.attendance + year, 
         type: DataTypes.STRING(15)
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.attendance + year
+    tableName: DEFAULT_TABLE_NAMES.attendance + `_${year}`
 })
 
-const activity = (year) => conn.define(DEFAULT_TABLE_NAMES.activity + year, {
+const activity = (year) => conn.define(DEFAULT_TABLE_NAMES.activity + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255)
     },
@@ -252,7 +262,7 @@ const activity = (year) => conn.define(DEFAULT_TABLE_NAMES.activity + year, {
     }
 
 }, {
-    tableName: DEFAULT_TABLE_NAMES.activity + year
+    tableName: DEFAULT_TABLE_NAMES.activity + `_${year}`
 })
 
 const sessions = conn.define("sessions", {
@@ -267,6 +277,20 @@ const sessions = conn.define("sessions", {
     tableName: DEFAULT_TABLE_NAMES.sessions
 })
 
+const error_logs = conn.define("errs", {
+    err:{
+        type:DataTypes.STRING
+    },
+    endpoint:{
+        type:DataTypes.STRING
+    },
+    session:{
+        type:DataTypes.STRING
+    },
+    isFixed:{
+        type:DataTypes.BOOLEAN
+    }
+})
 // const results = conn.define("results", {
 
 // })
@@ -285,5 +309,6 @@ module.exports = {
     studentCourses,
     allCourses,
     staff,
-    students
+    students,
+    error_logs
 }

@@ -1,6 +1,8 @@
 const randToken = require("rand-token")
 const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
+const fetch = require("node-fetch")
+const { success } = require("./statusCodes")
 
 const generateUID = (len) =>{
 
@@ -9,7 +11,38 @@ const generateUID = (len) =>{
 
 const secret = process.env.AUTH_KEY
 
-exports.backend_url = "http://localhost:3003/"
+exports.backend_url = process.env.BACKEND_BASE_URL
+
+exports.pExCheck = (reqParams, array) => {
+  let resp = [];
+  reqParams = JSON.parse(JSON.stringify(reqParams));
+  array.forEach(param => {
+    if (!reqParams.hasOwnProperty(param) || reqParams[param] == "") {
+      resp.push(param);
+    }
+  });
+  return resp;
+}
+
+exports.pInCheck = (reqParams, array) => {
+  let resp = [];
+  if (reqParams) {
+    if (Array.isArray(reqParams)) {
+      reqParams.forEach(item => {
+        if (!array.includes(item)) {
+          resp.push(item);
+        }
+      });
+    } else {
+      for (let key in reqParams) {
+        if (!array.includes(key)) {
+          resp.push(key);
+        }
+      }
+    }
+  }
+  return resp;
+}
 
 exports.generateToken = (payload, time, s) => {
     const _secret = s ?? secret
@@ -50,7 +83,7 @@ exports.mailSend = (subject, to, html, attachments) => { //attachments should be
     }
   }
   
-  exports.destructureToken = (token, s) => {
+exports.destructureToken = (token, s) => {
     const _secret = s ? s : secret
   
     try {
@@ -69,5 +102,20 @@ exports.mailSend = (subject, to, html, attachments) => { //attachments should be
       // }
   
     }
-  };
+};
 
+exports.getStudentDetailFronTrackNetque = async (formId, surname) =>{
+  const url = process.env.NETQUE_TRACK_URL+`?formId=${formId}&surname=${surname}`
+
+  const response = await fetch(url)
+  const json = await response.json()
+  if (response.status != 200){
+    console.log("json here::::: ",json)
+    return {success:false, msg:json?.Message}
+  }
+
+  const {Email, StudentName, DepartmentName, ProgrammeTitle} = json
+
+  return {success:true, msg:"Successful", data:{formId: formId, email:Email, name: StudentName, dept: DepartmentName, programme: ProgrammeTitle}}
+  
+}

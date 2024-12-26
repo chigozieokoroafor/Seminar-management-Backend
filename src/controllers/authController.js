@@ -1,61 +1,92 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const { User } = require('../db/model');
-const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag } = require('../helpers/util');
+const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck } = require('../helpers/util');
 // const { createUser, getUser, updateUser, getUserByVerificationtag, createVerificationTagForUser } = require('../db/query');
 const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired } = require('../helpers/statusCodes');
+const { studentAccountCreatorValidator } = require('../helpers/validator');
+const { P } = require("../helpers/consts");
 
 
 
-// Create Account
-exports.createAccount = async (req, res) => {
-    const { email, password, first_name, last_name, firebase_auth } = req.body;
+// Create Account for default
+// exports.createAccount = async (req, res) => {
+//     const { email, password, first_name, last_name, firebase_auth } = req.body;
   
-    if (!email || !password || !first_name || !last_name) {
-      return generalError(res, 'Required fields missing or empty')
-    }
+//     if (!email || !password || !first_name || !last_name) {
+//       return generalError(res, 'Required fields missing or empty')
+//     }
   
-    try {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
-        return exists(res, 'Account with email exists')
-      }
-      const hashedPassword = bcrypt.hashSync(password, 8);
-      const data = {
-        email,
-        password: hashedPassword,
-        first_name,
-        last_name,
-      }
-      let ext
-      const resolved = await Promise.allSettled([createUser(data), createVerificationTagForUser(email)])
+//     try {
+//       const existingUser = await User.findOne({ where: { email } });
+//       if (existingUser) {
+//         return exists(res, 'Account with email exists')
+//       }
+//       const hashedPassword = bcrypt.hashSync(password, 8);
+//       const data = {
+//         email,
+//         password: hashedPassword,
+//         first_name,
+//         last_name,
+//       }
+//       let ext
+//       const resolved = await Promise.allSettled([createUser(data), createVerificationTagForUser(email)])
       
-      if (resolved[0].status == "rejected"){
-        return generalError(res, "Unable to create Account, Please try at a later time.")
-      }
-      if (resolved[1].status){
-        ext = resolved[1].value
-      }
+//       if (resolved[0].status == "rejected"){
+//         return generalError(res, "Unable to create Account, Please try at a later time.")
+//       }
+//       if (resolved[1].status){
+//         ext = resolved[1].value
+//       }
       
       
-      const token = generateToken({email:email}, 1*5*60, process.env.ACC_VERIFICATION_KEY)
+//       const token = generateToken({email:email}, 1*5*60, process.env.ACC_VERIFICATION_KEY)
   
-      // const verificationUri = backend_url+`/auth/verify?token=${token}`
-      // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
-      const verificationUri = `http://localhost:3000/verification?token=${token}&ext=${ext}`
-      const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
-      mailSend("Account verification",email, emailTemp);
+//       // const verificationUri = backend_url+`/auth/verify?token=${token}`
+//       // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
+//       const verificationUri = `${backend_url}/verification?token=${token}&ext=${ext}`
+//       const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
+//       mailSend("Account verification",email, emailTemp);
   
-      success(res, {}, 'Account Created, kindly check mail provided for verification link.')
+//       success(res, {}, 'Account Created, kindly check mail provided for verification link.')
       
-    } catch (error) {
-      // console.error(error);
+//     } catch (error) {
+//       // console.error(error);
   
-      res.status(400).json({ msg: 'Error occurred while creating account' }); 
-    }
-  };
+//       res.status(400).json({ msg: 'Error occurred while creating account' }); 
+//     }
+// };
+
+// flow for students
+// Enter form number - fetch - update information- submit - login
+exports.getstudentDetailFronNetQue = async(req, res) =>{
+  // this to be used for first interaction
+  // resulting data will be passed in the createAccount enpoint
+  const missing = pExCheck(req?.body, [P.formId, P.surname])
+
+  if (missing.length > 0){
+    return generalError(res, `Missing fields: ${missing.toLocaleString()}`)
+  }
+
+  const valid_ = studentAccountCreatorValidator.validate(req?.body)
+  if (valid_?.error){
+    return generalError(res, valid_?.error?.message)
+  }
+  const detail = await getStudentDetailFronTrackNetque(req?.body?.formId, req?.body?.surname)
+  if (!detail?.success) return generalError(res, "Kindly check details provided")
   
-  // Sign In
-  exports.signin =async (req, res) => {
+  return success(res, detail?.data, "Valid")
+}
+
+exports.createAccountStudent = async(req, res) =>{
+  const missing = pExCheck(req?.body, [P.formId, P.surname])
+}
+
+
+
+
+  
+// Sign In
+exports.signin =async (req, res) => {
     const { email, password } = req.body;
   
     if (!email || !password) {
@@ -83,11 +114,11 @@ exports.createAccount = async (req, res) => {
       console.error(error);
       return internalServerError(res, 'Error occurred while signing in')
     }
-  };
+};
   
   
-  // Verify Email
-  exports.verify = async (req, res) => {
+// Verify Email
+exports.verify = async (req, res) => {
     const { token } = req.query;
   
     const data = destructureToken(token, 'email_verification');
@@ -103,10 +134,10 @@ exports.createAccount = async (req, res) => {
       console.error(error);
       res.status(500).json({ msg: 'Error occurred while verifying account' });
     }
-  };
+};
   
-  // Send Password Reset Email
-  exports.requestPasswordReset = async (req, res) => {
+// Send Password Reset Email
+exports.requestPasswordReset = async (req, res) => {
     const { email } = req.body;
   
     try {
@@ -131,10 +162,10 @@ exports.createAccount = async (req, res) => {
       console.error(error);
       res.status(500).json({ msg: 'Error occurred while sending password reset mail' });
     }
-  };
+};
   
-  // Update Password
-  exports.updatePassword = async (req, res) => {
+// Update Password
+exports.updatePassword = async (req, res) => {
     const { token } = req.query;
     const { password } = req.body;
   
@@ -162,9 +193,9 @@ exports.createAccount = async (req, res) => {
       console.error(error);
       res.status(500).json({ msg: 'Error occurred while updating password' });
     }
-  }; 
+}; 
   
-  exports.resendLink = async (req, res) => {
+exports.resendLink = async (req, res) => {
     const { ext } = req.query;
     getUserByVerificationtag(ext).then( async (data)=>{
   
@@ -188,6 +219,6 @@ exports.createAccount = async (req, res) => {
       // console.log(reason)
       return generalError(res, "Unable to send verification Link")
     })
-  }
+}
   
   
