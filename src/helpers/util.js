@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken")
 const fetch = require("node-fetch")
 const { success } = require("./statusCodes")
 
-const generateUID = (len) =>{
+exports.generateUID = (len) =>{
 
     return randToken.uid(len??32)
 }
@@ -110,12 +110,12 @@ exports.getStudentDetailFronTrackNetque = async (formId, surname) =>{
   const response = await fetch(url)
   const json = await response.json()
   if (response.status != 200){
-    console.log("json here::::: ",json)
+    
     return {success:false, msg:json?.Message}
   }
 
-  const {Email, StudentName, DepartmentName, ProgrammeTitle} = json
+  const {Email, StudentName, DepartmentName, ProgrammeTitle, Phone, SemesterTitle} = json
 
-  return {success:true, msg:"Successful", data:{formId: formId, email:Email, name: StudentName, dept: DepartmentName, programme: ProgrammeTitle}}
+  return {success:true, msg:"Successful", data:{formId: formId, email:Email, name: StudentName, dept: DepartmentName, program: ProgrammeTitle, phone:Phone, session: SemesterTitle?.split(" ")[0]}}
   
 }

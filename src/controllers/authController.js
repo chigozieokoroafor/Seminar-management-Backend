@@ -1,10 +1,11 @@
 const bcrypt = require("bcrypt");
 const { User } = require('../db/model');
-const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck } = require('../helpers/util');
+const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck, generateUID } = require('../helpers/util');
 // const { createUser, getUser, updateUser, getUserByVerificationtag, createVerificationTagForUser } = require('../db/query');
-const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired } = require('../helpers/statusCodes');
+const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created } = require('../helpers/statusCodes');
 const { studentAccountCreatorValidator } = require('../helpers/validator');
 const { P } = require("../helpers/consts");
+const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail } = require("../db/query");
 
 
 
@@ -71,6 +72,13 @@ exports.getstudentDetailFronNetQue = async(req, res) =>{
   if (valid_?.error){
     return generalError(res, valid_?.error?.message)
   }
+
+  const userExists = await getStudentByFormId(req?.body?.formId)
+
+  if (userExists){
+    return generalError(res, "User exists")
+  }
+
   const detail = await getStudentDetailFronTrackNetque(req?.body?.formId, req?.body?.surname)
   if (!detail?.success) return generalError(res, "Kindly check details provided")
   
@@ -78,11 +86,53 @@ exports.getstudentDetailFronNetQue = async(req, res) =>{
 }
 
 exports.createAccountStudent = async(req, res) =>{
-  const missing = pExCheck(req?.body, [P.formId, P.surname])
+  const missing = pExCheck(req?.body, [P.formId, P.name, P.email, P.dept, P.program, P.session, P.password])
+  if (missing.length > 0) {
+    return generalError(res, `Missing fields: ${missing.toLocaleString()}`)
+  }
+
+  const userExists = await getStudentByFormId(req?.body?.formId)
+
+  if (userExists){
+    return generalError(res, "User exists")
+  }
+
+  const names = req?.body?.name?.split(" ")
+  const user_id = generateUID(20)
+  const hashed_pwd = bcrypt.hashSync(req?.body?.password, 10)
+
+  const user_data = {
+    uid:user_id,
+    firstName:names[1],
+    lastName:names[0],
+    middleName:names[2],
+    email:req?.body?.email,
+    phone:req?.body?.phone,
+    password:hashed_pwd
+  }
+
+  const student_data = {
+    sid:user_id,
+    program: req?.body?.program,
+    netqueFormId:req?.body?.formId,
+    session:req?.body?.session
+  }
+
+  const email = req?.body?.email
+
+  const x = await registerStudent(user_data, student_data)
+  console.log("x::::",x)
+
+  const token = generateToken({uid:user_id}, 1*5*60, process.env.AUTH_KEY)
+  
+  const verificationUri = backend_url+`/auth/verify?token=${token}`
+  // const verificationUri = `${backend_url}/verification?token=${token}&ext=${ext}`
+  const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
+  mailSend("Account verification",email, emailTemp);
+  
+  return success(res, {}, "Account created")
+
 }
-
-
-
 
   
 // Sign In
@@ -95,7 +145,7 @@ exports.signin =async (req, res) => {
     }
   
     try {
-      const user = await getUser({email:email})
+      const user = await getUserByEmail(email)
   
       if (!user) {
         // return res.status(404).json({ msg: "Account with credentials provided doesn't exist" });
@@ -106,6 +156,16 @@ exports.signin =async (req, res) => {
       if (!passwordIsValid) {
         // return res.status(401).json({ msg: 'Invalid password' });
         return generalError(res, "Invalid credentials")
+      }
+
+      if (!user?.isVerified){
+        const token = generateToken({uid:user?.uid}, 1*5*60, process.env.AUTH_KEY)
+  
+        const verificationUri = backend_url+`/auth/verify?token=${token}`
+        // const verificationUri = `${backend_url}/verification?token=${token}&ext=${ext}`
+        const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
+        mailSend("Account verification",email, emailTemp);
+        return created(res, {}, "Verification link sent, kindly verify to proceed")
       }
   
       const token = generateToken({ uid: user.uid }, 1*600*60);
@@ -121,17 +181,19 @@ exports.signin =async (req, res) => {
 exports.verify = async (req, res) => {
     const { token } = req.query;
   
-    const data = destructureToken(token, 'email_verification');
+    const data = destructureToken(token, process.env.AUTH_KEY);
     if (!data) {
       // return res.status(410).json({ msg: 'Verification Link expired, Kindly request for another to verify account' });
-      return expired(res, "Session expired")
+      return expired(res, "Verification Link Expired")
     }
+
+    const uid = data?.uid
   
     try {
-      const update = await updateUser({email:data}, {account_verified:true})
+      const update = await verifyUser(uid)
       return success(res, {}, "Verified")
     } catch (error) {
-      console.error(error);
+      console.error("error on verify::::",error);
       res.status(500).json({ msg: 'Error occurred while verifying account' });
     }
 };

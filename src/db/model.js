@@ -27,13 +27,17 @@ const users = conn.define(DEFAULT_TABLE_NAMES.users, {
         type:DataTypes.STRING(100),
         allowNull:false
     },
+    "isVerified":{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+    },
     "designation": {
         type: DataTypes.STRING(15),
         defaultValue: "Mr"
     },
     "userType": {
         type: DataTypes.INTEGER,
-        defaultValue: 0
+        defaultValue: 0      // 0-students 1-supervisors 2-coordinator 3-admin
     },
     "password": {
         type: DataTypes.STRING(255),

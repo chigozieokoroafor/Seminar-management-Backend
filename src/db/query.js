@@ -30,3 +30,19 @@ exports.getUserByEmail = async(email) =>{
 exports.logError = async(err, endpoint, session   ) =>{
     await error_logs.create({session, err, endpoint})
 }
+
+exports.createUser = async(data) =>{
+    return await users.create(data)
+}
+
+exports.verifyUser = async(uid) =>{
+    return await users.update({isVerified:true}, {where:{uid}})
+}
+
+exports.createStudent = async (data) =>{
+    return await students.create(data)
+}
+
+exports.registerStudent = async(user_data, student_data) =>{
+    return Promise.allSettled([this.createUser(user_data), this.createStudent(student_data)])
+}

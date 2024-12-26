@@ -1,6 +1,6 @@
 const {Router} = require("express");
 const { createNewSession } = require("./src/controllers/admincontroller");
-const { createAccountStudent } = require("./src/controllers/authController");
+const { createAccountStudent, getstudentDetailFronNetQue, verify, signin } = require("./src/controllers/authController");
 const { getStudentDetailFronTrackNetque } = require("./src/helpers/util");
 
 const router = Router();
@@ -12,8 +12,10 @@ router.post("/admin/session/create", createNewSession)
 
 
 // for student
-router.post("/detail/student", getStudentDetailFronTrackNetque)
-router.post("/register", createAccountStudent)
+router.post("/auth/detail/student", getstudentDetailFronNetQue)
+router.post("/auth/register", createAccountStudent)
+router.get("/auth/verify", verify)
+router.post("/auth/signin", signin)
 
 
 module.exports = {

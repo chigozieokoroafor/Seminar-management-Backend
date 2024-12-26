@@ -19,11 +19,16 @@ exports.P = {
     last_name:"lastName",
     middleName:"middleName",
     surname:"surname",
+    name:"name",
+    email:"email",
+    dept:"dept",
     netqueFormId:"netqueFormId",
     formId:"formId",
     program:"program",
     programTitle:"programTitle",
     sid:"sid",
-    uid:"uid"
+    uid:"uid",
+    password:"password",
+    session:"session"
 }
 
