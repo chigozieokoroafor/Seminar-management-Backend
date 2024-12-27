@@ -119,3 +119,10 @@ exports.getStudentDetailFronTrackNetque = async (formId, surname) =>{
   return {success:true, msg:"Successful", data:{formId: formId, email:Email, name: StudentName, dept: DepartmentName, program: ProgrammeTitle, phone:Phone, session: SemesterTitle?.split(" ")[0]}}
   
 }
+
+exports.TOKEN_KEYS = {
+  0:process.env.STUDENT_AUTH,
+  1:process.env.SUPERVISOR_AUTH,
+  2:process.env.COORDINATOR_AUTH,
+  3:process.env.ADMIN_AUTH,
+}

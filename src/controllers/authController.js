@@ -1,11 +1,12 @@
 const bcrypt = require("bcrypt");
-const { User } = require('../db/model');
-const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck, generateUID } = require('../helpers/util');
+const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck, generateUID, TOKEN_KEYS } = require('../helpers/util');
 // const { createUser, getUser, updateUser, getUserByVerificationtag, createVerificationTagForUser } = require('../db/query');
 const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created } = require('../helpers/statusCodes');
 const { studentAccountCreatorValidator } = require('../helpers/validator');
 const { P } = require("../helpers/consts");
-const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail } = require("../db/query");
+const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail, fetchUserForSignin } = require("../db/query");
+
+
 
 
 
@@ -121,7 +122,6 @@ exports.createAccountStudent = async(req, res) =>{
   const email = req?.body?.email
 
   const x = await registerStudent(user_data, student_data)
-  console.log("x::::",x)
 
   const token = generateToken({uid:user_id}, 1*5*60, process.env.AUTH_KEY)
   
@@ -145,7 +145,10 @@ exports.signin =async (req, res) => {
     }
   
     try {
-      const user = await getUserByEmail(email)
+      // const user = await getUserByEmail(email)
+      const user = (await fetchUserForSignin(email))[0]
+
+      // console.log("user::::::::",user)
   
       if (!user) {
         // return res.status(404).json({ msg: "Account with credentials provided doesn't exist" });
@@ -157,18 +160,19 @@ exports.signin =async (req, res) => {
         // return res.status(401).json({ msg: 'Invalid password' });
         return generalError(res, "Invalid credentials")
       }
-
+      // console.log("verified:::", !user?.isVerified)
       if (!user?.isVerified){
-        const token = generateToken({uid:user?.uid}, 1*5*60, process.env.AUTH_KEY)
+        const token = generateToken({uid:user?.uid, type:user?.userType}, 1*5*60, process.env.AUTH_KEY)
   
         const verificationUri = backend_url+`/auth/verify?token=${token}`
         // const verificationUri = `${backend_url}/verification?token=${token}&ext=${ext}`
         const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
         mailSend("Account verification",email, emailTemp);
-        return created(res, {}, "Verification link sent, kindly verify to proceed")
+        return created(res, "Verification link sent, kindly verify to proceed")
       }
-  
-      const token = generateToken({ uid: user.uid }, 1*600*60);
+      const auth_token = TOKEN_KEYS[user?.userType]
+      
+      const token = generateToken({ uid: user.uid }, 1*600*60, auth_token);
       return success(res, {token}, "")
     } catch (error) {
       console.error(error);
@@ -257,30 +261,30 @@ exports.updatePassword = async (req, res) => {
     }
 }; 
   
-exports.resendLink = async (req, res) => {
-    const { ext } = req.query;
-    getUserByVerificationtag(ext).then( async (data)=>{
+// exports.resendLink = async (req, res) => {
+//     const { ext } = req.query;
+//     getUserByVerificationtag(ext).then( async (data)=>{
   
-      if (!data){
-        return notFound(res, "Account not found")
-      }
+//       if (!data){
+//         return notFound(res, "Account not found")
+//       }
   
-      const new_ext = await createVerificationTagForUser(data?.email)
+//       const new_ext = await createVerificationTagForUser(data?.email)
   
-      const token = generateToken({email:data?.email}, 1*5*60, process.env.ACC_VERIFICATION_KEY)
+//       const token = generateToken({email:data?.email}, 1*5*60, process.env.ACC_VERIFICATION_KEY)
   
-      // const verificationUri = backend_url+`/auth/verify?token=${token}`
-      // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
-      const verificationUri = `http://localhost:3000/verification?token=${token}&ext=${new_ext}`
-      const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
-      console.log("Account verification",data?.email, emailTemp)
-      mailSend("Account verification",data?.email, emailTemp);
+//       // const verificationUri = backend_url+`/auth/verify?token=${token}`
+//       // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
+//       const verificationUri = `http://localhost:3000/verification?token=${token}&ext=${new_ext}`
+//       const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
+//       console.log("Account verification",data?.email, emailTemp)
+//       mailSend("Account verification",data?.email, emailTemp);
   
-      return success(res, {}, "Link sent")
-    }).catch((reason)=>{
-      // console.log(reason)
-      return generalError(res, "Unable to send verification Link")
-    })
-}
+//       return success(res, {}, "Link sent")
+//     }).catch((reason)=>{
+//       // console.log(reason)
+//       return generalError(res, "Unable to send verification Link")
+//     })
+// }
   
   

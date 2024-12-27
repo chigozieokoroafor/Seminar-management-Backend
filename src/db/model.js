@@ -120,6 +120,12 @@ const staff = conn.define("staff", {
 })
 
 const allCourses = conn.define("allCourses", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     code: {
         type: DataTypes.STRING(10)
     },

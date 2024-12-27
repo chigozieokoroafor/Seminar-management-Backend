@@ -29,6 +29,13 @@ exports.P = {
     sid:"sid",
     uid:"uid",
     password:"password",
-    session:"session"
+    session:"session",
+    code:"code",
+    title:"title",
+    designation:"designation",
+    phone:"phone",
+    img:"img",
+    isVerified:"isVerified",
+    userType:"userType"
 }
 

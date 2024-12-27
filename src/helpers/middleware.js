@@ -58,7 +58,7 @@ class Auth {
 }
 
 const studentAuth = (req, res, next) => { // auth for students
-    new Auth(process.env.AUTH_KEY).auth(req, res, () => {
+    new Auth(process.env.STUDENT_AUTH).auth(req, res, () => {
         if (req?.err?.err) {
             return newError(res, req.err.err, req.err.status);
         } else if (!req?.user?.uid) {
