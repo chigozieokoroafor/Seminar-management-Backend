@@ -145,8 +145,8 @@ exports.signin =async (req, res) => {
     }
   
     try {
-      // const user = await getUserByEmail(email)
-      const user = (await fetchUserForSignin(email))[0]
+      const user = await getUserByEmail(email)
+      // const user = (await fetchUserForSignin(email))[0]
 
       // console.log("user::::::::",user)
   
@@ -172,7 +172,7 @@ exports.signin =async (req, res) => {
       }
       const auth_token = TOKEN_KEYS[user?.userType]
       
-      const token = generateToken({ uid: user.uid }, 1*600*60, auth_token);
+      const token = generateToken({ uid: user.uid, userType: user?.userType}, 1*600*60, auth_token);
       return success(res, {token}, "")
     } catch (error) {
       console.error(error);

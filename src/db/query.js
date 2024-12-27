@@ -37,6 +37,11 @@ exports.fetchUserForSignin = async (email) =>{
     return (await pool.promise().execute(`SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, ${P.email}, ${P.phone}, ${P.img}, ${P.password}, ${P.isVerified}, ${P.userType}, student.${P.program}, student.${P.program} FROM ${process.env.DB_NAME}.${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} student on student.sid = user.uid where user.email = '${email}' ;`))[0]
 }
 
+exports.fetchUserForMiddleware = async (uid, userType) =>{
+    
+    return (await pool.promise().execute(`SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, ${P.email}, ${P.phone}, ${P.img}, ${P.password}, ${P.isVerified}, ${P.userType}, student.${P.program}, student.${P.program} FROM ${process.env.DB_NAME}.${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} student on student.sid = user.uid where user.uid = '${uid}' AND user.userType = ${userType} ;`))[0]
+}
+
 exports.createUser = async (data) => {
     return await users.create(data)
 }

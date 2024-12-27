@@ -2,6 +2,7 @@
 require("dotenv").config()
 const jwt = require("jsonwebtoken")
 const { unAuthorized, generalError, expired, invalid, newError } = require("../helpers/statusCodes");
+const { fetchUserForMiddleware } = require("../db/query");
 
 // const { P } = require("../consts");
 
@@ -14,7 +15,7 @@ class Auth {
         }
     }
 
-    auth = (req, res, next) => {
+    auth = async (req, res, next) => {
 
 
         if (!req?.headers?.authorization) {
@@ -36,8 +37,9 @@ class Auth {
 
         try {
             const payload = jwt.verify(token, this.secret);
-
-            req.user = payload.payload; // Store the payload in the request
+            
+            const user_data = await fetchUserForMiddleware(payload.payload?.uid, payload.payload?.userType)
+            req.user = user_data[0]; // Store the payload in the request
             return next(); // Call next to proceed if token is valid
         } catch (error) {
             if (error.name === "TokenExpiredError") {
@@ -59,6 +61,7 @@ class Auth {
 
 const studentAuth = (req, res, next) => { // auth for students
     new Auth(process.env.STUDENT_AUTH).auth(req, res, () => {
+        
         if (req?.err?.err) {
             return newError(res, req.err.err, req.err.status);
         } else if (!req?.user?.uid) {
