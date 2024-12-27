@@ -137,18 +137,19 @@ exports.createAccountStudent = async(req, res) =>{
   
 // Sign In
 exports.signin =async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, session} = req.body;
   
     if (!email || !password) {
       // return res.status(406).json({ msg: 'Email and password fields required' });
       return notAcceptable(res, 'Email and password fields required')
     }
+
+    if (!session){
+      return notAcceptable(res, "Specific session required")
+    }
   
     try {
       const user = await getUserByEmail(email)
-      // const user = (await fetchUserForSignin(email))[0]
-
-      // console.log("user::::::::",user)
   
       if (!user) {
         // return res.status(404).json({ msg: "Account with credentials provided doesn't exist" });
@@ -172,7 +173,7 @@ exports.signin =async (req, res) => {
       }
       const auth_token = TOKEN_KEYS[user?.userType]
       
-      const token = generateToken({ uid: user.uid, userType: user?.userType}, 1*600*60, auth_token);
+      const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
       return success(res, {token}, "")
     } catch (error) {
       console.error(error);

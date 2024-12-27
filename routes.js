@@ -1,8 +1,7 @@
 const {Router} = require("express");
-const { createNewSession } = require("./src/controllers/admincontroller");
+const { createNewSession, createnewUser } = require("./src/controllers/admincontroller");
 const { createAccountStudent, getstudentDetailFronNetQue, verify, signin } = require("./src/controllers/authController");
-const { getStudentDetailFronTrackNetque } = require("./src/helpers/util");
-const { getAllCourses } = require("./src/controllers/baseController");
+const { getAllCourses, getSessions } = require("./src/controllers/baseController");
 const { studentAuth } = require("./src/helpers/middleware");
 
 const router = Router();
@@ -10,8 +9,10 @@ const router = Router();
 // for admin
 // router.get()
 router.post("/admin/session/create", createNewSession)
+router.post("/admin/user/create", createnewUser)
 // router.update()
 
+router.get("/sessions/fetch", getSessions)
 
 // for student
 router.post("/auth/detail/student", getstudentDetailFronNetQue)

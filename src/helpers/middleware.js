@@ -40,6 +40,8 @@ class Auth {
             
             const user_data = await fetchUserForMiddleware(payload.payload?.uid, payload.payload?.userType)
             req.user = user_data[0]; // Store the payload in the request
+            req.user.session = payload.payload?.session
+
             return next(); // Call next to proceed if token is valid
         } catch (error) {
             if (error.name === "TokenExpiredError") {

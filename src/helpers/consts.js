@@ -30,12 +30,14 @@ exports.P = {
     uid:"uid",
     password:"password",
     session:"session",
+    isActive:"isActive",
     code:"code",
     title:"title",
     designation:"designation",
     phone:"phone",
     img:"img",
     isVerified:"isVerified",
-    userType:"userType"
+    userType:"userType",
+    createdAt:"createdAt"
 }
 
