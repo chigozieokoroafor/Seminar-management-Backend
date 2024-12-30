@@ -26,7 +26,7 @@ const dev_sync = async (year) => {
     seminars.sync({ alter: true })
     activity(year).sync({ alter: true })
     attendance(year).sync({ alter: true })
-    seminars(year).sync({ alter: true })
+    seminars.sync({ alter: true })
     projects.sync({ alter: true })
     studentCourses(year).sync({ alter: true })
     allCourses.sync({ alter: true })
