@@ -6,6 +6,7 @@ exports.DEFAULT_TABLE_NAMES = {
     attendance: "attendance",
     progressT: "progressT",
     conceptT: "conceptT",
+    forms:"forms",
     seminars: "seminars",
     projects: "projects",
     studentCourses: "studentCourses",
@@ -33,11 +34,16 @@ exports.P = {
     isActive:"isActive",
     code:"code",
     title:"title",
+    topic:"topic",
     designation:"designation",
     phone:"phone",
     img:"img",
     isVerified:"isVerified",
     userType:"userType",
-    createdAt:"createdAt"
+    createdAt:"createdAt",
+    matricNo:"matricNo"
 }
+
+exports.PAGE_LIMIT = 20
+exports.DEFAULT_VENUE = "Departmental Seminar Room, Foyer I, Computer Building"
 

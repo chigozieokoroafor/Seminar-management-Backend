@@ -87,7 +87,7 @@ exports.getstudentDetailFronNetQue = async(req, res) =>{
 }
 
 exports.createAccountStudent = async(req, res) =>{
-  const missing = pExCheck(req?.body, [P.formId, P.name, P.email, P.dept, P.program, P.session, P.password])
+  const missing = pExCheck(req?.body, [P.formId, P.name, P.email, P.dept, P.program, P.session, P.password, P.matricNo])
   if (missing.length > 0) {
     return generalError(res, `Missing fields: ${missing.toLocaleString()}`)
   }
@@ -113,6 +113,7 @@ exports.createAccountStudent = async(req, res) =>{
   }
 
   const student_data = {
+    matricNo:req?.body?.matricNo,
     sid:user_id,
     program: req?.body?.program,
     netqueFormId:req?.body?.formId,

@@ -69,6 +69,19 @@ const students = conn.define("students", {
         allowNull: false,
         unique: true
     },
+    matricNo:{
+        type:DataTypes.STRING(255),
+        allowNull:false,
+        unique:true
+    },
+    topic:{
+        type:DataTypes.STRING(255),
+        allowNull:true
+    },
+    supervisor:{
+        type:DataTypes.STRING(255),
+        allowNull:true
+    },
     program: {
         type: DataTypes.STRING(255),
         defaultValue: "MSC"
@@ -135,6 +148,12 @@ const allCourses = conn.define("allCourses", {
 })
 
 const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses + `_${year}`, {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -155,9 +174,13 @@ const studentCourses = (year) => conn.define(DEFAULT_TABLE_NAMES.studentCourses 
     tableName: DEFAULT_TABLE_NAMES.seminars + `_${year}`
 })
 
-
 const projects = conn.define("projects", {
-
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     "sid": {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -175,7 +198,13 @@ const projects = conn.define("projects", {
     }
 })
 
-const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + `_${year}`, {
+const seminars = conn.define(DEFAULT_TABLE_NAMES.seminars , {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     scheduledDate: {
         type: DataTypes.DATE
     },
@@ -189,13 +218,16 @@ const seminars = (year) => conn.define(DEFAULT_TABLE_NAMES.seminars + `_${year}`
     isDone: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
-
+    },
+    isActivated:{
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.seminars + `_${year}`
+    tableName: DEFAULT_TABLE_NAMES.seminars 
 })
 
-const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
+const forms = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
     sid: {
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -209,31 +241,34 @@ const conceptT = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`
     supervisor: {
         type: DataTypes.STRING(255),
         allowNull: false,
+    },
+    seminarType:{ //concept or progress
+        type: DataTypes.STRING(20)
     }
 }, {
-    tableName: DEFAULT_TABLE_NAMES.conceptT + `_${year}`
+    tableName: DEFAULT_TABLE_NAMES.forms + `_${year}`
 })
 
-const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + `_${year}`, {
-    sid: {
-        type: DataTypes.STRING(255)
-    },
-    detail: {
-        type: DataTypes.JSON
-    },
-    isApproved: {
-        type: DataTypes.BOOLEAN
-    },
-    supervisor: {
-        type: DataTypes.STRING(255),
-        allowNull: false,
-    },
-    session: {
-        type: DataTypes.STRING(15)
-    }
-}, {
-    tableName: DEFAULT_TABLE_NAMES.progressT + `_${year}`
-})
+// const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + `_${year}`, {
+//     sid: {
+//         type: DataTypes.STRING(255)
+//     },
+//     detail: {
+//         type: DataTypes.JSON
+//     },
+//     isApproved: {
+//         type: DataTypes.BOOLEAN
+//     },
+//     supervisor: {
+//         type: DataTypes.STRING(255),
+//         allowNull: false,
+//     },
+//     session: {
+//         type: DataTypes.STRING(15)
+//     }
+// }, {
+//     tableName: DEFAULT_TABLE_NAMES.progressT + `_${year}`
+// })
 
 const attendance = (year) => conn.define(DEFAULT_TABLE_NAMES.attendance + `_${year}`, {
     sid: {
@@ -312,13 +347,12 @@ module.exports = {
     seminars,
     activity,
     attendance,
-    progressT,
-    conceptT,
     seminars,
     projects,
     studentCourses,
     allCourses,
     staff,
     students,
-    error_logs
+    error_logs,
+    forms
 }

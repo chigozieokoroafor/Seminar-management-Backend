@@ -14,3 +14,15 @@ exports.studentAccountCreatorValidator = Joi.object(
         )
     }
 )
+
+exports.userEditValidator = Joi.object(
+    {
+        "firstName": Joi.string(),
+        "lastName": Joi.string(),
+        "middleName": Joi.string(),
+        "designation": Joi.string(),
+        "userType": Joi.number(),
+        "email": Joi.string(),
+        "phone": Joi.string()
+    }
+)

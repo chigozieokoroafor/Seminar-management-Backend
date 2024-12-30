@@ -6,9 +6,9 @@ exports.getAllCourses = async (req, res, next) => {
     return success(res, { courses }, "fetched")
 }
 
-exports.getSessions = async(req, res, next) =>{
+exports.getSessions = async (req, res, next) => {
     const sessions = await fetchSessions()
-    return success(res, {sessions}, "fetched")
+    return success(res, { sessions }, "fetched")
 }
 exports.registerCourses = async (req, res, next) => {
 
