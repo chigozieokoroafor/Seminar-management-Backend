@@ -15,8 +15,7 @@ const { users,
 const admin_sync = async (year) => {
     activity(year).sync({ alter: true })
     attendance(year).sync({ alter: true })
-    progressT(year).sync({ alter: true })
-    conceptT(year).sync({ alter: true })
+    
     studentCourses(year).sync({ alter: true })
     forms(year).sync({alter:true})
 }
@@ -27,8 +26,6 @@ const dev_sync = async (year) => {
     seminars.sync({ alter: true })
     activity(year).sync({ alter: true })
     attendance(year).sync({ alter: true })
-    progressT(year).sync({ alter: true })
-    conceptT(year).sync({ alter: true })
     seminars(year).sync({ alter: true })
     projects.sync({ alter: true })
     studentCourses(year).sync({ alter: true })
