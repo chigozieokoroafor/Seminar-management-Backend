@@ -38,3 +38,13 @@ exports.viewstudentList = async(req, res) =>{
     const data = await fetchAllStudents(10, 0)
     return success(res, data)
 }
+
+exports.sendOutSeminarInvite = async(req, res) =>{
+    const user_id = req?.user?.uid
+
+    // console.
+    const date = new Date().toUTCString()
+    const name = `${req?.user?.designation}. ${req?.user?.firstName} ${req?.user?.lastName}`
+    return success(res, {date, name}, "working on seminar invite")
+
+}

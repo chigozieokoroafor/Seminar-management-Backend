@@ -3,7 +3,7 @@ const { createNewSession, createNewUser, fetchAllUsers, updateUserDetail, create
 const { createAccountStudent, getstudentDetailFronNetQue, verify, signin } = require("./src/controllers/authController");
 const { getAllCourses, getSessions } = require("./src/controllers/baseController");
 const { studentAuth, adminAuth, supAuth, coordAuth } = require("./src/helpers/middleware");
-const { createSeminardate, getAllSeminars, getAllTopics, viewstudentList } = require("./src/controllers/coordinatorController");
+const { createSeminardate, getAllSeminars, getAllTopics, viewstudentList, sendOutSeminarInvite } = require("./src/controllers/coordinatorController");
 
 const router = Router();
 
@@ -29,10 +29,9 @@ router.get("/courses/fetch", studentAuth, getAllCourses)
 
 router.post("/coordinator/schedule/create", coordAuth, createSeminardate)
 router.get("/coordinator/schedule/fetch", coordAuth, getAllSeminars)
-
 router.get("/coordinator/topics/fetch", coordAuth, getAllTopics)
 router.get("/coordinator/students/fetch", coordAuth, viewstudentList)
-
+router.get("/coordinator/invites/send", coordAuth, sendOutSeminarInvite)
 
 module.exports = {
     router
