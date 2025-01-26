@@ -56,6 +56,9 @@ exports.createUser = async (data) => {
     return await users.create(data)
 }
 
+exports.updateUserByEmail = async(email, update) => {
+    return await users.update(update, {where:{email}})
+}
 exports.verifyUser = async (uid) => {
     return await users.update({ isVerified: true }, { where: { uid } })
 }

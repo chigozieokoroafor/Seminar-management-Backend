@@ -12,6 +12,12 @@ exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
 }
 
+exports.createUserSession = (req, d, secret)=>{
+  const expTime=  1000 * 60 * 1 // 1 hour
+  const token = jwt.sign({payload:d}, secret ? secret:process.env.SECRET_KEY, {expiresIn:expTime})
+  req.session.token = token;
+}
+
 const secret = process.env.AUTH_KEY
 
 exports.backend_url = process.env.BACKEND_BASE_URL
@@ -81,8 +87,10 @@ exports.mailSend = (subject, to, html, attachments) => { //attachments should be
     }
 
     smtpTransport.sendMail(mailOptions);
+    return true
   } catch (err) {
     console.log('sendEmail', err.message);
+    return false
   }
 }
 
@@ -171,8 +179,6 @@ exports.createPDF_ =  () => {
   doc_1.table(table)
   doc_1.end()
 }
-
-
 
 exports.createPDF = function () {
   const tableData = [
@@ -275,8 +281,7 @@ function drawRow(doc, y, rowData, columnWidths, isHeader) {
   doc.rect(30, y, columnWidths.reduce((a, b) => a + b, 0), rowHeight).stroke();
 }
 
-
-this.createPDF()
+// this.createPDF()
 exports.TOKEN_KEYS = {
   0: process.env.STUDENT_AUTH,
   1: process.env.SUPERVISOR_AUTH,

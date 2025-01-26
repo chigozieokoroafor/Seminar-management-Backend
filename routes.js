@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const { createNewSession, createNewUser, fetchAllUsers, updateUserDetail, createNewCourse } = require("./src/controllers/admincontroller");
-const { createAccountStudent, getstudentDetailFronNetQue, verify, signin } = require("./src/controllers/authController");
+const { createAccountStudent, getstudentDetailFronNetQue, verify, signin, requestPasswordReset, updatePassword } = require("./src/controllers/authController");
 const { getAllCourses, getSessions } = require("./src/controllers/baseController");
 const { studentAuth, adminAuth, supAuth, coordAuth } = require("./src/helpers/middleware");
 const { createSeminardate, getAllSeminars, getAllTopics, viewstudentList, sendOutSeminarInvite } = require("./src/controllers/coordinatorController");
@@ -25,6 +25,13 @@ router.post("/auth/detail/student", getstudentDetailFronNetQue)
 router.post("/auth/register", createAccountStudent)
 router.get("/auth/verify", verify)
 router.post("/auth/signin", signin)
+router.post("/auth/pwd/reset/request", requestPasswordReset)
+router.post("/auth/pwd/reset", updatePassword)
+
+// router.post("/", (req, res)=>{
+//     res?.writeHead(200, {})
+// })
+
 router.get("/courses/fetch", studentAuth, getAllCourses)
 
 router.post("/coordinator/schedule/create", coordAuth, createSeminardate)
