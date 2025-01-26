@@ -192,7 +192,7 @@ exports.updatePassword = async (req, res) => {
     }
   
     const data = destructureToken(token, process.env.PWD_RESET_KEY);
-    console.log("data::: here:::", data)
+    // console.log("data::: here:::", data)
     if (!data) {
       return expired(res, "Verification link expired")
       // return res.status(410).json({ msg: 'Token expired' });
@@ -205,7 +205,7 @@ exports.updatePassword = async (req, res) => {
   
     try {
       const hashedPassword = bcrypt.hashSync(password, 8);
-      await updateUserByEmail({ email: data.email }, {password:hashedPassword})
+      await updateUserByEmail(data.email, {password:hashedPassword})
   
       return success(res,{} ,"Password updated")
     } catch (error) {
