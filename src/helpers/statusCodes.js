@@ -46,3 +46,8 @@ exports.notModifiedError = (res) => {
     return res.status(304).json({ "msg": "Not modified", success: false })
 }
 
+exports.redirect = (res, url) =>{
+    return res.status(301).redirect(url)
+    
+}
+

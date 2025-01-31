@@ -4,8 +4,8 @@ exports.DEFAULT_TABLE_NAMES = {
     seminars: "seminars",
     activity: "activity",
     attendance: "attendance",
-    progressT: "progressT",
-    conceptT: "conceptT",
+    // progressT: "progressT",
+    conceptT: "seminarReg",
     forms:"forms",
     seminars: "seminars",
     projects: "projects",
@@ -41,7 +41,10 @@ exports.P = {
     isVerified:"isVerified",
     userType:"userType",
     createdAt:"createdAt",
-    matricNo:"matricNo"
+    matricNo:"matricNo",
+
+    seminarType:"seminarType",
+    programType:"programType",
 }
 
 exports.PAGE_LIMIT = 20

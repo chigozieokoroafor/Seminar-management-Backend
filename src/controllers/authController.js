@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const { backend_url, destructureToken, mailSend, generateToken, reVerificationTag, getStudentDetailFronTrackNetque, pExCheck, generateUID, TOKEN_KEYS } = require('../helpers/util');
 // const { createUser, getUser, updateUser, getUserByVerificationtag, createVerificationTagForUser } = require('../db/query');
-const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created } = require('../helpers/statusCodes');
+const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created, redirect } = require('../helpers/statusCodes');
 const { studentAccountCreatorValidator } = require('../helpers/validator');
 const { P } = require("../helpers/consts");
 const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail, fetchUserForSignin, updateSpecificUser, updateUserByEmail } = require("../db/query");
@@ -145,7 +145,8 @@ exports.verify = async (req, res) => {
   
     try {
       const update = await verifyUser(uid)
-      return success(res, {}, "Verified")
+      const url = backend_url+'/login'
+      return redirect(res, url)
     } catch (error) {
       console.error("error on verify::::",error);
       res.status(500).json({ msg: 'Error occurred while verifying account' });

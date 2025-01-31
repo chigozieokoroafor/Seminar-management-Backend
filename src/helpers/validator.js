@@ -26,3 +26,4 @@ exports.userEditValidator = Joi.object(
         "phone": Joi.string()
     }
 )
+

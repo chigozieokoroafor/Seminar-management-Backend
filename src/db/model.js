@@ -228,7 +228,8 @@ const seminars = conn.define(DEFAULT_TABLE_NAMES.seminars , {
 })
 
 const forms = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
-    sid: {
+
+    sid: { // studentId
         type: DataTypes.STRING(255),
         allowNull: false,
     },
