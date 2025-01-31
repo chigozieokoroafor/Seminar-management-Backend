@@ -1,9 +1,16 @@
 const { P } = require("../helpers/consts")
-const { generalError } = require("../helpers/statusCodes")
+const { generalError, success } = require("../helpers/statusCodes")
 const { pInCheck } = require("../helpers/util")
 
 exports.getProfile = async(req, res, next) =>{
     const user_id = req?.user?.uid 
+    console.log
+}
+
+exports.getUserDataForHomePage = async(req, res, next) =>{
+    const user_id = req?.user?.id
+    console.log("user:::", req?.user)
+    return success(res, {}, "working on shit")
 }
 
 exports.updateProfile = async(req, res, next) =>{

@@ -40,10 +40,14 @@ exports.createAccountStudent = async(req, res) =>{
     return generalError(res, `Missing fields: ${missing.toLocaleString()}`)
   }
 
-  const userExists = await getStudentByFormId(req?.body?.formId)
+  const [studentExists, userExists] = await Promise.allSettled([getStudentByFormId(req?.body?.formId), getUserByEmail(req?.body?.email)])
 
-  if (userExists){
-    return generalError(res, "User exists")
+  if(studentExists.status== "rejected" || userExists.status == "rejected"){
+    console.log("studentUserCheck ::::", studentExists, userExists)
+    return generalError(res, "unable to validate")
+  }
+  if (studentExists.value || userExists.value){
+    return generalError(res, "User exists: email or formId exists")
   }
 
   const names = req?.body?.name?.split(" ")
@@ -120,6 +124,7 @@ exports.signin =async (req, res) => {
         mailSend("Account verification",email, emailTemp);
         return created(res, "Verification link sent, kindly verify to proceed")
       }
+
       const auth_token = TOKEN_KEYS[user?.userType]
       
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
@@ -129,8 +134,7 @@ exports.signin =async (req, res) => {
       return internalServerError(res, 'Error occurred while signing in')
     }
 };
-  
-  
+    
 // Verify Email
 exports.verify = async (req, res) => {
     const { token } = req.query;
@@ -168,7 +172,7 @@ exports.requestPasswordReset = async (req, res) => {
       
       const token = generateToken({ email }, 1*5*60, process.env.PWD_RESET_KEY);
       // const PWD_RESET_URL = `https://lookupon.vercel.app/reset-password?token=${token}`
-      const PWD_RESET_URL = `https://localhost:5174/reset-password?token=${token}`
+      const PWD_RESET_URL = `https://localhost:5174/reset-password?token=${token}&email=${email}`
       const emailTemp = `<p>Click <a href="${PWD_RESET_URL}">here</a> to reset your password.</p>`; // Adjust the email template as needed
       const mailSent =  mailSend('Password Reset Request',email, emailTemp);
       

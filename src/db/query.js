@@ -68,7 +68,7 @@ exports.createStudent = async (data) => {
 }
 
 exports.registerStudent = async (user_data, student_data) => {
-    return Promise.allSettled([this.createUser(user_data), this.createStudent(student_data)])
+    return await Promise.allSettled([this.createUser(user_data), this.createStudent(student_data)])
 }
 
 
