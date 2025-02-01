@@ -12,7 +12,8 @@ exports.DEFAULT_TABLE_NAMES = {
     studentCourses: "studentCourses",
     allCourses: "allCourses",
     staff: "staff",
-    students: "students"
+    students: "students",
+    feedbacks:"feedbacks"
 }
 
 exports.P = {
@@ -42,6 +43,7 @@ exports.P = {
     userType:"userType",
     createdAt:"createdAt",
     matricNo:"matricNo",
+    supervisor:"supervisor",
 
     seminarType:"seminarType",
     programType:"programType",

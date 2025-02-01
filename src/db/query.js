@@ -1,4 +1,4 @@
-const { sessions, students, users, error_logs, allCourses, seminars } = require("./model");
+const { sessions, students, users, error_logs, allCourses, seminars, forms } = require("./model");
 const { P, DEFAULT_TABLE_NAMES, DEFAULT_VENUE } = require("../helpers/consts");
 const { pool } = require("./conn");
 const { Op } = require("sequelize")
@@ -49,7 +49,7 @@ exports.fetchUserForSignin = async (email) => {
 
 exports.fetchUserForMiddleware = async (uid, userType) => {
 
-    return (await pool.promise().execute(`SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, ${P.email}, ${P.phone}, ${P.img}, ${P.password}, ${P.isVerified}, ${P.userType}, student.${P.matricNo}, student.${P.program}, student.${P.program} FROM ${process.env.DB_NAME}.${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} student on student.sid = user.uid where user.uid = '${uid}' AND user.userType = ${userType} ;`))[0]
+    return (await pool.promise().execute(`SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, ${P.email}, ${P.phone}, ${P.img}, ${P.isVerified}, ${P.userType}, student.${P.matricNo}, student.${P.program}, student.${P.program}, student.${P.isActive}, student.${P.supervisor} FROM ${process.env.DB_NAME}.${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} student on student.sid = user.uid where user.uid = '${uid}' AND user.userType = ${userType} ;`))[0]
 }
 
 exports.createUser = async (data) => {
@@ -115,4 +115,16 @@ exports.fetchAllTopics = async () => {
 exports.fetchAllStudents = async(limit, skip) => {
     const query = `SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, students.${P.matricNo}, students.${P.program} FROM students INNER JOIN users ON students.sId = users.uid LIMIT ${limit} OFFSET ${skip} ;`
     return (await pool.promise().execute(query))[0]
+}
+
+exports.registerSeminar = async(data) =>{
+    return await forms.create(data)
+}
+
+exports.validateSeminarExists = async(data) =>{
+    return await forms.findOne({where:data})
+}
+
+exports.updateSeminarForReg = async(update, query) =>{
+    return await forms.update(update, {where:query})
 }

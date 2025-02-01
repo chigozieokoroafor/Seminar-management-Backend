@@ -205,8 +205,22 @@ const seminars = conn.define(DEFAULT_TABLE_NAMES.seminars , {
         autoIncrement: true,
         unique: true
     },
+    sid: { // studentId
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    lid: { //lecturerId
+        type: DataTypes.STRING(255),
+        allowNull: false,
+    },
+    title:{
+        type:DataTypes.TEXT
+    },
     scheduledDate: {
         type: DataTypes.DATE
+    },
+    seminarType:{ //concept or progress
+        type: DataTypes.STRING(20)
     },
     venue: {
         type: DataTypes.STRING(255),
@@ -227,8 +241,13 @@ const seminars = conn.define(DEFAULT_TABLE_NAMES.seminars , {
     tableName: DEFAULT_TABLE_NAMES.seminars 
 })
 
-const forms = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
-
+const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     sid: { // studentId
         type: DataTypes.STRING(255),
         allowNull: false,
@@ -236,19 +255,68 @@ const forms = (year) => conn.define(DEFAULT_TABLE_NAMES.conceptT + `_${year}`, {
     detail: {
         type: DataTypes.JSON
     },
-    isApproved: {
-        type: DataTypes.BOOLEAN
+    isSuperviorPending:{ // for supervisors to check
+        type: DataTypes.BOOLEAN,
+        defaultValue:true
     },
-    supervisor: {
+    isSupervisorApproved: {
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    },
+    isCoordinatorPending:{ // for coordinators to check
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    },
+    isCoordinatorApproved: {
+        type: DataTypes.BOOLEAN,
+        defaultValue:false
+    },  
+    lid: { //lecturerId
         type: DataTypes.STRING(255),
         allowNull: false,
     },
     seminarType:{ //concept or progress
         type: DataTypes.STRING(20)
+    },
+    
+    session: {
+        type: DataTypes.STRING(15)
     }
+    
 }, {
-    tableName: DEFAULT_TABLE_NAMES.forms + `_${year}`
+    tableName: DEFAULT_TABLE_NAMES.forms
 })
+
+feedbacks = (year) => conn.define(DEFAULT_TABLE_NAMES.feedbacks + `_${year}`,
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+            unique: true
+        },
+
+        lid: { // lecturerId
+            type: DataTypes.STRING(255),
+            allowNull: false,
+        },
+        sid:{ //studentId
+            type:DataTypes.STRING(255),
+            allowNull:false
+        },
+        fid:{ // formId
+            type: DataTypes.INTEGER
+        },
+        feedback:{
+            type:DataTypes.TEXT
+        }
+
+
+    },
+    {
+        tableName: DEFAULT_TABLE_NAMES.feedbacks + `_${year}`
+    }
+)
 
 // const progressT = (year) => conn.define(DEFAULT_TABLE_NAMES.progressT + `_${year}`, {
 //     sid: {
@@ -312,6 +380,12 @@ const activity = (year) => conn.define(DEFAULT_TABLE_NAMES.activity + `_${year}`
 })
 
 const sessions = conn.define("sessions", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     session: {
         type: DataTypes.STRING(15)
     },
@@ -324,6 +398,12 @@ const sessions = conn.define("sessions", {
 })
 
 const error_logs = conn.define("errs", {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
     err:{
         type:DataTypes.STRING
     },
@@ -337,6 +417,7 @@ const error_logs = conn.define("errs", {
         type:DataTypes.BOOLEAN
     }
 })
+
 // const results = conn.define("results", {
 
 // })

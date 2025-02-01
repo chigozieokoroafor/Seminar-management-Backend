@@ -11,6 +11,7 @@ exports.generalError = (res, msg) => {
 }
 
 exports.success = (res, d, msg) => {
+    
     return res.status(200).json({ success: true, d, "msg": msg ?? "" })
 }
 
