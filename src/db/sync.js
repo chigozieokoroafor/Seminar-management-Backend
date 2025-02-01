@@ -38,7 +38,7 @@ const dev_sync = async (year) => {
 
 year = "2021/2022"
 
-dev_sync(year)
+// dev_sync(year)
 
 module.exports = {
     admin_sync
