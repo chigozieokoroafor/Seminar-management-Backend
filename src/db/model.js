@@ -287,7 +287,7 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
     tableName: DEFAULT_TABLE_NAMES.forms
 })
 
-feedbacks = (year) => conn.define(DEFAULT_TABLE_NAMES.feedbacks + `_${year}`,
+const feedbacks = (year) => conn.define(DEFAULT_TABLE_NAMES.feedbacks + `_${year}`,
     {
         id: {
             type: DataTypes.INTEGER,
@@ -436,5 +436,6 @@ module.exports = {
     staff,
     students,
     error_logs,
-    forms
+    forms,
+    feedbacks
 }

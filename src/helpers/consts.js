@@ -44,9 +44,18 @@ exports.P = {
     createdAt:"createdAt",
     matricNo:"matricNo",
     supervisor:"supervisor",
-
+    lid:"lid",
+    fid:"fid",
+    id:"id",
     seminarType:"seminarType",
     programType:"programType",
+    detail:"detail",
+    isSupervisorPending:"isSuperviorPending",
+    isSupervisorApproved:"isSupervisorApproved",
+    isCoordinatorPending:"isCoordinatorPending",
+    isCoordinatorApproved:"isCoordinatorApproved",
+    
+
 }
 
 exports.PAGE_LIMIT = 20

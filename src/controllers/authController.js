@@ -172,7 +172,7 @@ exports.requestPasswordReset = async (req, res) => {
       
       const token = generateToken({ email }, 1*5*60, process.env.PWD_RESET_KEY);
       // const PWD_RESET_URL = `https://lookupon.vercel.app/reset-password?token=${token}`
-      const PWD_RESET_URL = `https://localhost:5174/reset-password?token=${token}&email=${email}`
+      const PWD_RESET_URL = `http://localhost:5174/reset-password?token=${token}&email=${email}`
       const emailTemp = `<p>Click <a href="${PWD_RESET_URL}">here</a> to reset your password.</p>`; // Adjust the email template as needed
       const mailSent =  mailSend('Password Reset Request',email, emailTemp);
       

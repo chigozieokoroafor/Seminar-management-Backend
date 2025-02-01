@@ -1,4 +1,4 @@
-const { sessions, students, users, error_logs, allCourses, seminars, forms } = require("./model");
+const { sessions, students, users, error_logs, allCourses, seminars, forms, feedbacks } = require("./model");
 const { P, DEFAULT_TABLE_NAMES, DEFAULT_VENUE } = require("../helpers/consts");
 const { pool } = require("./conn");
 const { Op } = require("sequelize")
@@ -127,4 +127,16 @@ exports.validateSeminarExists = async(data) =>{
 
 exports.updateSeminarForReg = async(update, query) =>{
     return await forms.update(update, {where:query})
+}
+
+exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
+    const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
+    // LEFT JOIN '${DEFAULT_TABLE_NAMES.feedbacks}_${year}' as feedback ON forms.${P.id} = feedback.${P.fid} //this is extra query for the feedbacks
+    // LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as supervisor ON  forms.${P.lid} = supervisor.${P.uid}
+    // supervisor.${P.first_name} as sp_firstName, supervisor.${P.last_name} as sp_lastName, supervisor.${P.middleName} as sp_middleName
+    return (await pool.promise().query(query))[0]
+}
+
+exports.getFeedbackForForm = async (fid, year) =>{
+    return await feedbacks(year).findOne({where:{fid}, order:[[P.createdAt, "DESC"]]})
 }

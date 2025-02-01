@@ -1,4 +1,4 @@
-const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg } = require("../db/query")
+const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm } = require("../db/query")
 const { P } = require("../helpers/consts")
 const { generalError, success, internalServerError } = require("../helpers/statusCodes")
 const { pInCheck, pExCheck } = require("../helpers/util")
@@ -43,7 +43,7 @@ exports.initiateSeminarRegistration = async (req, res ) =>{
         detail:{title: req?.body?.title,programType: req?.body[P.programType] } ,
         seminarType: req?.body[P.seminarType],
         session: req?.user?.session,
-        lid:""
+        lid:req?.user?.supervisor
     }
 
     isNew = await validateSeminarExists(data) ? false: true
@@ -56,6 +56,20 @@ exports.initiateSeminarRegistration = async (req, res ) =>{
         return internalServerError(res, "Unable to register, internal server error")
     }
     return success(res, {}, "success")
+
+}
+
+exports.getSeminarRegistrations = async(req, res) =>{
+    const user_id = req?.user?.uid
+    
+    const data = await getSeminarRegistrationForSpecificUser(user_id, req?.user?.session)
+    console.log(data[0])
+    const feedback = (await getFeedbackForForm(data[0]?.id, req?.user?.session))
+    return success(res, {form: data[0], feedback })
+}
+
+exports.updateSeminarRegistration = async (req, res)=>{
+    const user_id = req?.user?.uid
 
 }
 

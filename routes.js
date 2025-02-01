@@ -32,6 +32,9 @@ router.post("/auth/pwd/reset", authController.updatePassword)
 
 router.get("/student/home", studentAuth, studentController.getUserDataForHomePage)
 router.post("/seminar/register", studentAuth, studentController.initiateSeminarRegistration)
+router.get("/seminar/register/get", studentAuth, studentController.getSeminarRegistrations)
+
+// getSeminarRegistrations
 // router.get("/student/home/pending", studentAuth, studentController)
 
 

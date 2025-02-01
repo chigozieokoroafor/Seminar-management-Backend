@@ -9,7 +9,8 @@ const { users,
     staff,
     students,
     error_logs,
-    forms
+    forms,
+    feedbacks
 } = require("./model")
 
 const admin_sync = async (year) => {
@@ -31,12 +32,13 @@ const dev_sync = async (year) => {
     staff.sync({ alter: true })
     students.sync({ alter: true })
     error_logs.sync({ alter: true })
-    forms.sync({alter:true})
+    forms.sync({alter:true}),
+    feedbacks(year).sync({alter:true})
 }
 
 year = "2021/2022"
 
-// dev_sync(year)
+dev_sync(year)
 
 module.exports = {
     admin_sync
