@@ -5,6 +5,7 @@ const baseController = require("./src/controllers/baseController");
 const { studentAuth, adminAuth, supAuth, coordAuth } = require("./src/helpers/middleware");
 const coordinatorController = require("./src/controllers/coordinatorController");
 const studentController = require("./src/controllers/studentController");
+const supervisorController = require("./src/controllers/supervisorController")
 
 const router = Router();
 
@@ -40,6 +41,8 @@ router.get("/seminar/register/get", studentAuth, studentController.getSeminarReg
 
 
 router.get("/courses/fetch", studentAuth, baseController.getAllCourses)
+
+router.get("/supervisor/registrations/fetch", supAuth, supervisorController.getRegistrations)
 
 router.post("/coordinator/schedule/create", coordAuth, coordinatorController.createSeminardate)
 router.get("/coordinator/schedule/fetch", coordAuth, coordinatorController.getAllSeminars)

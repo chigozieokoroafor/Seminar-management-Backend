@@ -140,3 +140,12 @@ exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
 exports.getFeedbackForForm = async (fid, year) =>{
     return await feedbacks(year).findOne({where:{fid}, order:[[P.createdAt, "DESC"]]})
 }
+
+exports.getSeminarRegistrationBySupervisor = async(lid) => {
+    const query = `SELECT student.${P.matricNo} , forms.id, user.${P.first_name}, user.${P.last_name}, user.${P.middleName}, forms.${P.lid}, forms.${P.sid},forms.${P.detail} FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as user ON user.${P.uid} = forms.${P.sid} LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON student.${P.sid} = forms.${P.sid}  WHERE forms.${P.lid} = '${lid}' AND forms.${P.isSupervisorPending} = 1`
+    return (await pool.promise().query(query))[0]
+}
+
+exports.updateFormRegistration = async(where, update) =>{
+    return await forms.update(update, {where})
+}

@@ -54,7 +54,7 @@ exports.P = {
     isSupervisorApproved:"isSupervisorApproved",
     isCoordinatorPending:"isCoordinatorPending",
     isCoordinatorApproved:"isCoordinatorApproved",
-    
+    approve:"approve"
 
 }
 

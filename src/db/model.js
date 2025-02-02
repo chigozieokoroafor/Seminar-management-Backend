@@ -255,7 +255,7 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
     detail: {
         type: DataTypes.JSON
     },
-    isSuperviorPending:{ // for supervisors to check
+    isSupervisorPending:{ // for supervisors to check
         type: DataTypes.BOOLEAN,
         defaultValue:true
     },
