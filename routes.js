@@ -27,6 +27,7 @@ router.post("/auth/detail/student", authController.getstudentDetailFronNetQue)
 router.post("/auth/register", authController.createAccountStudent)
 router.get("/auth/verify", authController.verify)
 router.post("/auth/signin", authController.signin)
+router.get("/auth/verify/resend", authController.resendLink)
 router.post("/auth/pwd/reset/request", authController.requestPasswordReset)
 router.post("/auth/pwd/reset", authController.updatePassword)
 

@@ -4,7 +4,7 @@ const { backend_url, destructureToken, mailSend, generateToken, reVerificationTa
 const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created, redirect } = require('../helpers/statusCodes');
 const { studentAccountCreatorValidator } = require('../helpers/validator');
 const { P } = require("../helpers/consts");
-const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail, fetchUserForSignin, updateSpecificUser, updateUserByEmail } = require("../db/query");
+const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail, fetchUserForSignin, updateSpecificUser, updateUserByEmail, logError } = require("../db/query");
 
 // flow for students
 // Enter form number - fetch - update information- submit - login
@@ -220,30 +220,42 @@ exports.updatePassword = async (req, res) => {
     }
 }; 
   
-// exports.resendLink = async (req, res) => {
-//     const { ext } = req.query;
-//     getUserByVerificationtag(ext).then( async (data)=>{
+exports.resendLink = async (req, res) => {
+  try{
+    const { email } = req.query;
+    if (!email){
+      return generalError(res, "Email required")
+    }
+    // getUserByVerificationtag(ext).then( async (data)=>{
+    const user = getUserByEmail(email)
+    if (!user){
+      return notFound(res, "Account not found")
+    }
   
-//       if (!data){
-//         return notFound(res, "Account not found")
-//       }
+    // const new_ext = await createVerificationTagForUser(data?.email)
   
-//       const new_ext = await createVerificationTagForUser(data?.email)
+    // const token = generateToken({email:email}, 1*5*60, process.env.AUTH_KEY)
+
+    const token = generateToken({uid:user?.uid, type:user?.userType}, 1*5*60, process.env.AUTH_KEY)
   
-//       const token = generateToken({email:data?.email}, 1*5*60, process.env.ACC_VERIFICATION_KEY)
+    const verificationUri = backend_url+`/auth/verify?token=${token}`
+    // const verificationUri = `${backend_url}/verification?token=${token}&ext=${ext}`
+    const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
+    mailSend("Account verification",email, emailTemp);
+      // const verificationUri = backend_url+`/auth/verify?token=${token}`
+      // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
+      // mailSend("Account verification",data?.email, emailTemp);
   
-//       // const verificationUri = backend_url+`/auth/verify?token=${token}`
-//       // const verificationUri = `https://lookupon.vercel.app/verification?token=${token}` // live
-//       const verificationUri = `http://localhost:3000/verification?token=${token}&ext=${new_ext}`
-//       const emailTemp = `<p>Click <a href="${verificationUri}">here</a> to verify your email.</p>`; // Adjust the email template as needed
-//       console.log("Account verification",data?.email, emailTemp)
-//       mailSend("Account verification",data?.email, emailTemp);
-  
-//       return success(res, {}, "Link sent")
-//     }).catch((reason)=>{
-//       // console.log(reason)
-//       return generalError(res, "Unable to send verification Link")
-//     })
-// }
+    return success(res, {}, "Link sent")
+
+    // }).catch((reason)=>{
+    //   // console.log(reason)
+    //   return generalError(res, "Unable to send verification Link")
+    // })
+  }catch(error){
+    await logError(error?.message, "verificationUri", "None")
+    return generalError(res, "Unable to generate verification mail")
+  }
+}
   
   
