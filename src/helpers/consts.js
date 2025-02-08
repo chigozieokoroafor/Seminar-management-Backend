@@ -57,7 +57,12 @@ exports.P = {
     approve:"approve"
 
 }
-
+exports.USER_TYPES = {
+    0:"student",
+    1:"supervisor",
+    2:"coordinator",
+    3:"admin"
+}
 exports.PAGE_LIMIT = 20
 exports.DEFAULT_VENUE = "Departmental Seminar Room, Foyer I, Computer Building"
 

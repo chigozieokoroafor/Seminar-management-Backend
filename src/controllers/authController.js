@@ -3,7 +3,7 @@ const { backend_url, destructureToken, mailSend, generateToken, reVerificationTa
 // const { createUser, getUser, updateUser, getUserByVerificationtag, createVerificationTagForUser } = require('../db/query');
 const { success, notAcceptable, notFound, invalid, internalServerError, generalError, exists, expired, created, redirect } = require('../helpers/statusCodes');
 const { studentAccountCreatorValidator } = require('../helpers/validator');
-const { P } = require("../helpers/consts");
+const { P, USER_TYPES} = require("../helpers/consts");
 const { getStudentByFormId, registerStudent, verifyUser, getUserByEmail, fetchUserForSignin, updateSpecificUser, updateUserByEmail, logError } = require("../db/query");
 
 // flow for students
@@ -127,7 +127,7 @@ exports.signin =async (req, res) => {
       const auth_token = TOKEN_KEYS[user?.userType]
       
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
-      return success(res, {token}, "")
+      return success(res, {token, userType: USER_TYPES[user?.userType]}, "")
     } catch (error) {
       console.error(error);
       return internalServerError(res, 'Error occurred while signing in')
