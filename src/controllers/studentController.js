@@ -1,4 +1,4 @@
-const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById } = require("../db/query")
+const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration } = require("../db/query")
 const { P } = require("../helpers/consts")
 const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
 const { pInCheck, pExCheck } = require("../helpers/util")
@@ -84,10 +84,30 @@ exports.updateSeminarRegistration = async (req, res)=>{
         if (!data){
             return notFound(res, "Selected registration not found")
         }
+        let detail = ""
+        const {title, programType, seminarType} = req?.body
         
+        if(seminarType){
+            detail = detail + `${P.seminarType} = '${seminarType}' , `
+        }
+
+        if (title && !programType){
+            detail = detail + `detail = JSON_SET(${P.detail}, '$.${P.title}', '${title}')`
+        }else if (programType && !title){
+            detail = detail + `detail = JSON_SET(${P.detail}, '$.${P.programType}', '${programType}')`
+        }else{
+            detail = detail + `detail = JSON_SET(${P.detail}, '$.${P.programType}', '${programType}', '$.${P.title}', '${title}')`
+        }
+        // detail = JSON_SET(detail, '$.key', 'new_value')
+        const update_ = await updateSpecificSeminarRegistration(req?.query?.id, detail)
+        console.log(update_)
+
+        return success(res, {}, "updated successfully")
+        // add a notification at this point. to supervisors (event trigger.)
 
         
     }catch(error){
+        console.log(error)
         await logError(error?.message, "updateSeminarRegistration", req?.query?.id)
         return internalServerError(res, "Unable to update registration at current time")
     }

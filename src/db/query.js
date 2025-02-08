@@ -138,12 +138,16 @@ exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
 }
 
 exports.getSpecificSeminarRegistrationById = async(user_id, id) =>{
-    const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE ${P.id} = ${id} AND  ${P.sid} = ${user_id};`
+    const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE ${P.id} = ${id} AND  ${P.sid} = '${user_id}' ;`
     return (await pool.promise().query(query))[0]
 }
 
-exports.updateSpecificSeminarRegistration = async(id, dataPoints) =>{
-    const query = `UPDATE your_table SET json_column = JSON_SET(json_column, '$.key', 'new_value') WHERE condition;`
+exports.updateSpecificSeminarRegistration = async(id, update_) =>{
+    // detail = JSON_SET(detail, '$.key', 'new_value') - this is the content of update_, it's an extra query or rather the update to be made.
+
+    const query = `UPDATE ${DEFAULT_TABLE_NAMES.forms} SET ${update_} WHERE ${P.id} = ${id};`
+    console.log(query)
+    return (await pool.promise().query(query))[0]
 }
 
 exports.getFeedbackForForm = async (fid, year) =>{
