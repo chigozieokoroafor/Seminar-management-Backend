@@ -137,6 +137,15 @@ exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
     return (await pool.promise().query(query))[0]
 }
 
+exports.getSpecificSeminarRegistrationById = async(user_id, id) =>{
+    const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE ${P.id} = ${id} AND  ${P.sid} = ${user_id};`
+    return (await pool.promise().query(query))[0]
+}
+
+exports.updateSpecificSeminarRegistration = async(id, dataPoints) =>{
+    const query = `UPDATE your_table SET json_column = JSON_SET(json_column, '$.key', 'new_value') WHERE condition;`
+}
+
 exports.getFeedbackForForm = async (fid, year) =>{
     return await feedbacks(year).findOne({where:{fid}, order:[[P.createdAt, "DESC"]]})
 }

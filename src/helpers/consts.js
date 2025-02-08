@@ -50,7 +50,7 @@ exports.P = {
     seminarType:"seminarType",
     programType:"programType",
     detail:"detail",
-    isSupervisorPending:"isSuperviorPending",
+    isSupervisorPending:"isSupervisorPending",
     isSupervisorApproved:"isSupervisorApproved",
     isCoordinatorPending:"isCoordinatorPending",
     isCoordinatorApproved:"isCoordinatorApproved",

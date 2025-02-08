@@ -1,6 +1,6 @@
-const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm } = require("../db/query")
+const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById } = require("../db/query")
 const { P } = require("../helpers/consts")
-const { generalError, success, internalServerError } = require("../helpers/statusCodes")
+const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
 const { pInCheck, pExCheck } = require("../helpers/util")
 
 exports.getProfile = async(req, res, next) =>{
@@ -10,7 +10,7 @@ exports.getProfile = async(req, res, next) =>{
 
 exports.getUserDataForHomePage = async(req, res, next) =>{
     // const user_id = req?.user?.uid
-    console.log(req?.user)
+    // console.log(req?.user)
     const {firstName, lastName, isActive} = req?.user
     req.user = {}
     return success(res, {firstName, lastName, isActive}, "success")
@@ -63,14 +63,34 @@ exports.getSeminarRegistrations = async(req, res) =>{
     const user_id = req?.user?.uid
     
     const data = await getSeminarRegistrationForSpecificUser(user_id, req?.user?.session)
-    console.log(data[0])
+    // console.log(data[0])
     const feedback = (await getFeedbackForForm(data[0]?.id, req?.user?.session))
     return success(res, {form: data[0], feedback })
 }
 
 exports.updateSeminarRegistration = async (req, res)=>{
-    const user_id = req?.user?.uid
-    
+    try{
+        const user_id = req?.user?.uid
+        const missing = pExCheck(req?.query, [P.id]) //here, sid is the seminar DId
+        if (missing?.length > 0){
+            return generalError(res, `Missing required query param: ${missing?.toLocaleString()}`)
+        }
+
+        const not_required = pInCheck(req?.body, [P.seminarType, P.title, P.programType])
+        if (not_required?.length > 0){
+            return generalError(res, `Unrequired fields: ${not_required?.toLocaleString()}`)
+        }
+        const data = await getSpecificSeminarRegistrationById(user_id, req?.query?.id)
+        if (!data){
+            return notFound(res, "Selected registration not found")
+        }
+        
+
+        
+    }catch(error){
+        await logError(error?.message, "updateSeminarRegistration", req?.query?.id)
+        return internalServerError(res, "Unable to update registration at current time")
+    }
     
 }
 
