@@ -70,6 +70,7 @@ exports.getSeminarRegistrations = async(req, res) =>{
 
 exports.updateSeminarRegistration = async (req, res)=>{
     const user_id = req?.user?.uid
-
+    
+    
 }
 
