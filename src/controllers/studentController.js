@@ -104,8 +104,9 @@ exports.updateSeminarRegistration = async (req, res) => {
         const update_ = await updateSpecificSeminarRegistration(req?.query?.id, update_query)
         // console.log(update_)
 
-        return success(res, {}, "updated successfully")
+        success(res, {}, "updated successfully")
         // add a notification at this point. to supervisors (event trigger.)
+        
 
 
     } catch (error) {
