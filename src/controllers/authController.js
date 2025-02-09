@@ -127,7 +127,7 @@ exports.signin =async (req, res) => {
       const auth_token = TOKEN_KEYS[user?.userType]
       
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
-      return success(res, {token, userType: USER_TYPES[user?.userType]}, "")
+      return success(res, {token, userType: USER_TYPES[user?.userType], session}, "")
     } catch (error) {
       console.error(error);
       return internalServerError(res, 'Error occurred while signing in')
