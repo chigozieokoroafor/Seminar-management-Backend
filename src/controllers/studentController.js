@@ -60,12 +60,26 @@ exports.initiateSeminarRegistration = async (req, res) => {
 }
 
 exports.getSeminarRegistrations = async (req, res) => {
-    const user_id = req?.user?.uid
+    try{
+        const user_id = req?.user?.uid
 
-    const data = await getSeminarRegistrationForSpecificUser(user_id, req?.user?.session)
-    // console.log(data[0])
-    const feedback = (await getFeedbackForForm(data[0]?.id, req?.user?.session))
-    return success(res, { form: data[0], feedback })
+        const data = await getSeminarRegistrationForSpecificUser(user_id, req?.user?.session)
+        // console.log("data:::", data)
+
+        if(!data){
+            return success(res, {form:{}, feedback:{}}, "No registrations found")
+        }
+        try{
+            const feedback = (await getFeedbackForForm(data?.id, req?.user?.session))
+            return success(res, { form: data, feedback: feedback?feedback : {} })
+        }catch(err){
+            return success(res, { form: data, feedback: {} })
+        }
+        
+    }catch(error){
+        await logError(error?.message, "getSeminarRegistrations", req?.user?.session)
+        return internalServerError(res, "unable to get registrations at current time")
+    }
 }
 
 exports.updateSeminarRegistration = async (req, res) => {

@@ -135,11 +135,16 @@ exports.updateSeminarForReg = async(update, query) =>{
 }
 
 exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
-    const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
+    // const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
     // LEFT JOIN '${DEFAULT_TABLE_NAMES.feedbacks}_${year}' as feedback ON forms.${P.id} = feedback.${P.fid} //this is extra query for the feedbacks
     // LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as supervisor ON  forms.${P.lid} = supervisor.${P.uid}
     // supervisor.${P.first_name} as sp_firstName, supervisor.${P.last_name} as sp_lastName, supervisor.${P.middleName} as sp_middleName
-    return (await pool.promise().query(query))[0]
+    // return (await pool.promise().query(query))[0]
+
+    return await forms.findOne({
+        where: {sid:user_id,
+        session:year}
+    })
 }
 
 exports.getSpecificSeminarRegistrationById = async(user_id, id) =>{
