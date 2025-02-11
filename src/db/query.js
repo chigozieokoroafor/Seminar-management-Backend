@@ -38,6 +38,11 @@ exports.getUserByEmail = async (email) => {
     return await users.findOne({ where: { email: email } })
 }
 
+exports.getUserByEmailRaw = async (email) =>{
+    const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON user.uid = student.sid where user.email="${email}";`
+    return (await pool.promise().execute(query))[0]
+}
+
 exports.logError = async (err, endpoint, session) => {
     await error_logs.create({ session, err, endpoint })
 }
