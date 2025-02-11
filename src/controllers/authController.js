@@ -130,7 +130,7 @@ exports.signin =async (req, res) => {
       const auth_token = TOKEN_KEYS[user?.userType]
       let {firstName, lastName, middleName, program, isActive, matricNo} = user
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
-      return success(res, {token, userType: USER_TYPES[user?.userType], userDetail:{firstName, lastName, middleName, program, isActive, matricNo}, session}, "")
+      return success(res, {token, userType: USER_TYPES[user?.userType], userDetail:{firstName, lastName, middleName, program, isActive: (user?.userType != 0 || isActive) ? true : false, matricNo}, session}, "")
     } catch (error) {
       console.error(error);
       return internalServerError(res, 'Error occurred while signing in')
