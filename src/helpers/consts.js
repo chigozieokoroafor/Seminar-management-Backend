@@ -54,7 +54,8 @@ exports.P = {
     isSupervisorApproved:"isSupervisorApproved",
     isCoordinatorPending:"isCoordinatorPending",
     isCoordinatorApproved:"isCoordinatorApproved",
-    approve:"approve"
+    approve:"approve",
+    status:"status",
 
 }
 exports.USER_TYPES = {

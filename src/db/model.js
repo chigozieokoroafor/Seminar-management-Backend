@@ -281,6 +281,10 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
     
     session: {
         type: DataTypes.STRING(15)
+    },
+    status:{
+        type: DataTypes.TINYINT,
+        defaultValue:0  //statuses - {0:"supervisor pending", 1:"coordinator pending", 2:"approved", 3:"studentPending for feedback"}
     }
     
 }, {

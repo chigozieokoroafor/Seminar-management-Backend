@@ -38,7 +38,7 @@ exports.getUserByEmail = async (email) => {
     return await users.findOne({ where: { email: email } })
 }
 
-exports.getUserByEmailRaw = async (email) =>{
+exports.getUserByEmailRaw = async (email) => {
     const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON user.uid = student.sid where user.email="${email}";`
     return (await pool.promise().execute(query))[0]
 }
@@ -61,8 +61,8 @@ exports.createUser = async (data) => {
     return await users.create(data)
 }
 
-exports.updateUserByEmail = async(email, update) => {
-    return await users.update(update, {where:{email}})
+exports.updateUserByEmail = async (email, update) => {
+    return await users.update(update, { where: { email } })
 }
 exports.verifyUser = async (uid) => {
     return await users.update({ isVerified: true }, { where: { uid } })
@@ -110,31 +110,31 @@ exports.getSeminars = async (session, limit, offset) => {
 }
 
 exports.createNewSeminarDate = async (session, date) => {
-    return await seminars.create({ scheduledDate: date, session, venue: DEFAULT_VENUE})
+    return await seminars.create({ scheduledDate: date, session, venue: DEFAULT_VENUE })
 }
 
 exports.fetchAllTopics = async () => {
-    return await students.findAll({ where: { topic: { [Op.not]: null } } , attributes: [P.matricNo, P.topic]})
+    return await students.findAll({ where: { topic: { [Op.not]: null } }, attributes: [P.matricNo, P.topic] })
 }
 
-exports.fetchAllStudents = async(limit, skip) => {
+exports.fetchAllStudents = async (limit, skip) => {
     const query = `SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, students.${P.matricNo}, students.${P.program} FROM students INNER JOIN users ON students.sId = users.uid LIMIT ${limit} OFFSET ${skip} ;`
     return (await pool.promise().execute(query))[0]
 }
 
-exports.registerSeminar = async(data) =>{
+exports.registerSeminar = async (data) => {
     return await forms.create(data)
 }
 
-exports.validateSeminarExists = async(data) =>{
-    return await forms.findOne({where:data})
+exports.validateSeminarExists = async (data) => {
+    return await forms.findOne({ where: data })
 }
 
-exports.updateSeminarForReg = async(update, query) =>{
-    return await forms.update(update, {where:query})
+exports.updateSeminarForReg = async (update, query) => {
+    return await forms.update(update, { where: query })
 }
 
-exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
+exports.getSeminarRegistrationForSpecificUser = async (user_id, year) => {
     // const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
     // LEFT JOIN '${DEFAULT_TABLE_NAMES.feedbacks}_${year}' as feedback ON forms.${P.id} = feedback.${P.fid} //this is extra query for the feedbacks
     // LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as supervisor ON  forms.${P.lid} = supervisor.${P.uid}
@@ -142,17 +142,19 @@ exports.getSeminarRegistrationForSpecificUser = async(user_id, year) =>{
     // return (await pool.promise().query(query))[0]
 
     return await forms.findOne({
-        where: {sid:user_id,
-        session:year}
+        where: {
+            sid: user_id,
+            session: year
+        }
     })
 }
 
-exports.getSpecificSeminarRegistrationById = async(user_id, id) =>{
+exports.getSpecificSeminarRegistrationById = async (user_id, id) => {
     const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE ${P.id} = ${id} AND  ${P.sid} = '${user_id}' ;`
     return (await pool.promise().query(query))[0]
 }
 
-exports.updateSpecificSeminarRegistration = async(id, update_) =>{
+exports.updateSpecificSeminarRegistration = async (id, update_) => {
     // detail = JSON_SET(detail, '$.key', 'new_value') - this is the content of update_, it's an extra query or rather the update to be made.
 
     const query = `UPDATE ${DEFAULT_TABLE_NAMES.forms} SET ${update_} WHERE ${P.id} = ${id};`
@@ -160,15 +162,15 @@ exports.updateSpecificSeminarRegistration = async(id, update_) =>{
     return (await pool.promise().query(query))[0]
 }
 
-exports.getFeedbackForForm = async (fid, year) =>{
-    return await feedbacks(year).findOne({where:{fid}, order:[[P.createdAt, "DESC"]]})
+exports.getFeedbackForForm = async (fid, year) => {
+    return await feedbacks(year).findOne({ where: { fid }, order: [[P.createdAt, "DESC"]] })
 }
 
-exports.getSeminarRegistrationBySupervisor = async(lid) => {
+exports.getSeminarRegistrationBySupervisor = async (lid) => {
     const query = `SELECT student.${P.matricNo} , forms.id, user.${P.first_name}, user.${P.last_name}, user.${P.middleName}, forms.${P.lid}, forms.${P.sid},forms.${P.detail} FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as user ON user.${P.uid} = forms.${P.sid} LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON student.${P.sid} = forms.${P.sid}  WHERE forms.${P.lid} = '${lid}' AND forms.${P.isSupervisorPending} = 1`
     return (await pool.promise().query(query))[0]
 }
 
-exports.updateFormRegistration = async(where, update) =>{
-    return await forms.update(update, {where})
+exports.updateFormRegistration = async (where, update) => {
+    return await forms.update(update, { where })
 }
