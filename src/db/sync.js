@@ -1,3 +1,6 @@
+require("dotenv").config()
+
+
 const { users,
     sessions,
     seminars,
@@ -32,13 +35,15 @@ const dev_sync = async (year) => {
     staff.sync({ alter: true })
     students.sync({ alter: true })
     error_logs.sync({ alter: true })
-    forms.sync({alter:true}),
-    feedbacks(year).sync({alter:true})
+    forms.sync({ alter: true }),
+        feedbacks(year).sync({ alter: true })
 }
 
 year = "2021/2022"
 
-// dev_sync(year)
+if (process.env.ENV != "dev") {
+    dev_sync(year)
+}
 
 module.exports = {
     admin_sync
