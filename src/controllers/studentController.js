@@ -99,7 +99,7 @@ exports.updateSeminarRegistration = async (req, res) => {
         if (data?.length < 1) {
             return notFound(res, "Selected registration not found")
         }
-        let detail = ["isSupervisorPending= 1","isSupervisorApproved=0","isCoordinatorPending = 0", "isCoordinatorApproved = 0"]
+        let detail = ["status=0"] //isSupervisorPending= 1","isSupervisorApproved=0","isCoordinatorPending = 0", "isCoordinatorApproved = 0"
         const { title, programType, seminarType } = req?.body
 
         if (seminarType) {

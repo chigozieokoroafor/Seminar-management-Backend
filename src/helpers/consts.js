@@ -56,7 +56,7 @@ exports.P = {
     isCoordinatorApproved:"isCoordinatorApproved",
     approve:"approve",
     status:"status",
-
+    feedback:"feedback",
 }
 exports.USER_TYPES = {
     0:"student",

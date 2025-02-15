@@ -255,22 +255,22 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
     detail: {
         type: DataTypes.JSON
     },
-    isSupervisorPending:{ // for supervisors to check
-        type: DataTypes.BOOLEAN,
-        defaultValue:true
-    },
-    isSupervisorApproved: {
-        type: DataTypes.BOOLEAN,
-        defaultValue:false
-    },
-    isCoordinatorPending:{ // for coordinators to check
-        type: DataTypes.BOOLEAN,
-        defaultValue:false
-    },
-    isCoordinatorApproved: {
-        type: DataTypes.BOOLEAN,
-        defaultValue:false
-    },  
+    // isSupervisorPending:{ // for supervisors to check
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue:true
+    // },
+    // isSupervisorApproved: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue:false
+    // },
+    // isCoordinatorPending:{ // for coordinators to check
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue:false
+    // },
+    // isCoordinatorApproved: {
+    //     type: DataTypes.BOOLEAN,
+    //     defaultValue:false
+    // },  
     lid: { //lecturerId
         type: DataTypes.STRING(255),
         allowNull: false,

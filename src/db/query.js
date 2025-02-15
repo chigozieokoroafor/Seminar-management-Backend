@@ -145,7 +145,8 @@ exports.getSeminarRegistrationForSpecificUser = async (user_id, year) => {
         where: {
             sid: user_id,
             session: year
-        }
+        },
+        attributes:[P.id, P.seminarType, P.detail, P.session, P.status]
     })
 }
 
@@ -167,10 +168,18 @@ exports.getFeedbackForForm = async (fid, year) => {
 }
 
 exports.getSeminarRegistrationBySupervisor = async (lid) => {
-    const query = `SELECT student.${P.matricNo} , forms.id, user.${P.first_name}, user.${P.last_name}, user.${P.middleName}, forms.${P.lid}, forms.${P.sid},forms.${P.detail} FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as user ON user.${P.uid} = forms.${P.sid} LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON student.${P.sid} = forms.${P.sid}  WHERE forms.${P.lid} = '${lid}' AND forms.${P.isSupervisorPending} = 1`
+    const query = `SELECT student.${P.matricNo} , forms.id, user.${P.first_name}, user.${P.last_name}, user.${P.middleName}, forms.${P.lid}, forms.${P.sid},forms.${P.detail} FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as user ON user.${P.uid} = forms.${P.sid} LEFT JOIN ${DEFAULT_TABLE_NAMES.students} as student ON student.${P.sid} = forms.${P.sid}  WHERE forms.${P.lid} = '${lid}' AND forms.${P.status} = 0`
     return (await pool.promise().query(query))[0]
+}
+
+exports.getSpecificSeminarRegBySupervisor = async(where_q) =>{
+    return await forms.findOne({where:where_q_})
 }
 
 exports.updateFormRegistration = async (where, update) => {
     return await forms.update(update, { where })
+}
+
+exports.createFeedback = async (data, session) =>{
+    return await feedbacks(session).create(data)
 }
