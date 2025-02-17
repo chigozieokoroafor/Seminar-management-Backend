@@ -146,7 +146,7 @@ exports.getSeminarRegistrationForSpecificUser = async (user_id, year) => {
             sid: user_id,
             session: year
         },
-        attributes:[P.id, P.seminarType, P.detail, P.session, P.status]
+        attributes: [P.id, P.seminarType, P.detail, P.session, P.status, P.isCoordinatorApproved, P.isSupervisorApproved]
     })
 }
 
@@ -172,14 +172,24 @@ exports.getSeminarRegistrationBySupervisor = async (lid) => {
     return (await pool.promise().query(query))[0]
 }
 
-exports.getSpecificSeminarRegBySupervisor = async(where_q) =>{
-    return await forms.findOne({where:where_q_})
+exports.getSpecificSeminarRegBySupervisor = async (where_q) => {
+    return await forms.findOne({ where: where_q })
 }
 
 exports.updateFormRegistration = async (where, update) => {
     return await forms.update(update, { where })
 }
 
-exports.createFeedback = async (data, session) =>{
+exports.createFeedback = async (data, session) => {
     return await feedbacks(session).create(data)
+}
+
+exports.getActiveUserEmails = async () => {
+    return await users.findAll({
+        where: {
+            status:"active"
+        },
+        attributes:[P.email],
+        raw:true
+    })
 }

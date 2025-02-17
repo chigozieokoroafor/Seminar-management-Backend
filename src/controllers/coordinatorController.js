@@ -1,5 +1,6 @@
-const { createNewSeminarDate, getSeminars, fetchAllTopics, fetchAllStudents } = require("../db/query")
+const { createNewSeminarDate, getSeminars, fetchAllTopics, fetchAllStudents, getActiveUserEmails } = require("../db/query")
 const { PAGE_LIMIT } = require("../helpers/consts")
+const { baseEmitter, baseEvents } = require("../helpers/emitters/base")
 const { generalError, created, invalid, success } = require("../helpers/statusCodes")
 
 exports.createSeminardate = async (req, res) =>{
@@ -45,6 +46,14 @@ exports.sendOutSeminarInvite = async(req, res) =>{
     // console.
     const date = new Date().toUTCString()
     const name = `${req?.user?.designation}. ${req?.user?.firstName} ${req?.user?.lastName}`
-    return success(res, {date, name}, "working on seminar invite")
 
+    // getSeminars for seminar list
+    
+    const emails_ = await getActiveUserEmails()
+    const emailsList = emails_.map((email)=>{return email.email})
+    baseEmitter.emit(baseEvents.newSeminar, emailsList?.toString())
+
+    return success(res, {date, name}, "working on seminar invite")
+    
+    
 }

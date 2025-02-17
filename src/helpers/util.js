@@ -180,38 +180,65 @@ exports.createPDF_ =  () => {
   doc_1.end()
 }
 
-exports.createPDF = function () {
+exports.sendOutSeminarNotification = function (data, emails) {
   const tableData = [
+    { name: "Chigozie Okoroafor", title: `DEVELOPMENT OF A VALIDATED DATASET
+AND A FRAMEWORK TO MITIGATE BIAS IN
+FACIAL IMAGE PROCESSING [Progress]`, degree: "M.Sc", supervisor: "Dr. Adebayo" },
+    { name: "Jane Doe", title: `DEVELOPMENT OF A VALIDATED DATASET
+AND A FRAMEWORK TO MITIGATE BIAS IN
+FACIAL IMAGE PROCESSING [Progress]`, degree: "Ph.D", supervisor: "Dr. Smith" },
+    { name: "Chigozie Okoroafor", title: "Seminar Title", degree: "M.Sc", supervisor: "Dr. Adebayo" },
+    { name: "Jane Doe", title: "AI and Machine Learning", degree: "Ph.D", supervisor: "Dr. Smith" },
     { name: "Chigozie Okoroafor", title: "Seminar Title", degree: "M.Sc", supervisor: "Dr. Adebayo" },
     { name: "Jane Doe", title: "AI and Machine Learning", degree: "Ph.D", supervisor: "Dr. Smith" },
   ];
 
   // Create the PDF document
-  const doc = new PDFDocument({ margin: 10, size: "A4", layout: "landscape" });
+  const margin = 10
+  const defaultFontSize = 14
+  const doc = new PDFDocument({ margin: margin, size: "A4", layout: "landscape" });
   const buffers = [];
 
   doc.on("data", buffers.push.bind(buffers));
   doc.on("end", () => {
     const pdf = Buffer.concat(buffers);
-    console.log("Generated PDF:", pdf);
+    // console.log("Generated PDF:", pdf);
 
     // Simulate sending email
-    this.mailSend("Seminar Invite", "okoroaforc14@gmail.com", "Find attached your invite", [
+    this.mailSend("Seminar Invite", emails, "Find attached your invite", [
       { filename: "seminarInvite.pdf", content: pdf },
     ]);
   });
 
   // Header Section
-  doc.image("img/oau logo.jpeg", { fit: [50, 50], align: "left", valign: "left" });
+  doc.moveDown(2),
+  doc.image("img/oau logo.jpeg", { fit: [60, 60], align: "left", valign: "left" });
   doc
-    .fontSize(14)
-    .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", 120)
-    .moveDown();
-  doc.text("OBAFEMI AWOLOWO UNIVERSITY, ILE-IFE", { align: "center" }).moveDown();
+    .fontSize(defaultFontSize)
+    .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", {align:"center"})
+    // .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", 120)
+    .moveDown(0.5);
+  doc.text("OBAFEMI AWOLOWO UNIVERSITY, ILE-IFE, NIGERIA", { align: "center" }).moveDown(0.5);
   doc.text("POSTGRADUATE SEMINAR", { align: "center" }).moveDown();
+  doc.moveDown(0.5)
+  doc.moveTo(margin, 110) // Starting point (x, y)
+  //  .lineTo(300, 100) // Ending point (x, y)
+    .lineTo(doc.page.width - margin, 110)
+   .stroke(); // Apply the stroke
+   
+  doc.text(`Dear All,\nOn behalf of the Department, you are cordially invited to the postgraduate seminar presentation with the following details`).moveDown(0.5)
 
   // Draw Table
   drawTable(doc, tableData);
+  doc.moveDown()
+  doc.fontSize(defaultFontSize).text(`Venue: Departmental Seminar Room, Foyer I, Computer Building.`,margin, doc.y,  {align:"left" }).moveDown()
+  doc.text(`Date: Wednesday, November 6th, 2024`,margin, doc.y, {align:"left"}).moveDown()
+  doc.text(`Time: 12 pm`, margin, doc.y,{align:"left"}).moveDown()
+  doc.text(`Thanks for participating`,margin, doc.y, {align:"left"}).moveDown()
+  doc.text(`Aina S. (PHD)`, margin, doc.y,{align:"left"}).moveDown()
+  doc.text(`Seminar coordinator`,margin, doc.y, {align:"left"}).moveDown()
+  
 
   // Finalize the PDF
   doc.end();
@@ -225,12 +252,12 @@ function drawTable(doc, data) {
   const tableTop = 200; // Start position of the table
   const rowHeight = 30;
   const cellPadding = 5;
-  const columnWidths = [50, 150, 200, 100, 100]; // Widths for S/N, Name, Title, Degree, Supervisor
+  const columnWidths = [50, 150, 400, 100, 100]; // Widths for S/N, Name, Title, Degree, Supervisor
 
   // Draw Table Header
   let currentY = tableTop;
-
-  doc.fontSize(10).font("Helvetica-Bold");
+  doc.moveDown(0.5)
+  doc.fontSize(12).font("Helvetica-Bold");
   const headers = ["S/N", "Name", "Seminar Title", "Degree", "Supervisor"];
   drawRow(doc, currentY, headers, columnWidths, true);
   currentY += rowHeight;
@@ -253,7 +280,7 @@ function drawTable(doc, data) {
 // Function to draw a row
 function drawRow(doc, y, rowData, columnWidths, isHeader) {
   let x = 30; // Starting X position (left margin)
-  const rowHeight = 30;
+  const rowHeight = 50;
 
   rowData.forEach((cell, columnIndex) => {
     const width = columnWidths[columnIndex];
@@ -269,7 +296,7 @@ function drawRow(doc, y, rowData, columnWidths, isHeader) {
 
     // Draw Cell Text
     doc.text(String(cell), textX, textY, {
-      width: width - 10, // Account for padding
+      width: width - 5, // Account for padding
       ellipsis: true, // Add ellipsis if text overflows
     });
 
