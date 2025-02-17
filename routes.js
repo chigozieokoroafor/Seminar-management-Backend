@@ -33,7 +33,7 @@ router.post("/auth/pwd/reset", authController.updatePassword)
 
 
 router.get("/student/home", studentAuth, studentController.getUserDataForHomePage)
-router.post("student/seminar/register", studentAuth, studentController.initiateSeminarRegistration)
+router.post("/student/seminar/register", studentAuth, studentController.initiateSeminarRegistration)
 router.get("/student/seminar/register/get", studentAuth, studentController.getSeminarRegistrations)
 router.put("/student/seminar/update", studentAuth, studentController.updateSeminarRegistration)
 
