@@ -7,6 +7,9 @@ const { success } = require("./statusCodes")
 const pdfkit = require("pdfkit")
 const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
+const cloudinary = require("cloudinary").v2
+
+cloudinary.config({api_key:process.env.CLOUDINARY_API_SECRET, api_secret: process.env.CLOUDINARY_API_SECRET})
 
 exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
@@ -315,3 +318,12 @@ exports.TOKEN_KEYS = {
   2: process.env.COORDINATOR_AUTH,
   3: process.env.ADMIN_AUTH,
 }
+
+exports.uploadFileToCloudinary = function(){
+  const filePath = "C:\Users\OAUDA\Desktop\workspace\Seminar-management-Backend\README.md"
+  cloudinary.uploader.upload(filePath, {}).then((response)=>{
+    console.log("fileUpload::::response:::", response)
+  })
+}
+
+this.uploadFileToCloudinary()
