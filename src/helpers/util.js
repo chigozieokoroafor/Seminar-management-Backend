@@ -9,7 +9,7 @@ const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
 const cloudinary = require("cloudinary").v2
 
-cloudinary.config({api_key:process.env.CLOUDINARY_API_SECRET, api_secret: process.env.CLOUDINARY_API_SECRET})
+cloudinary.config({api_key:process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET})
 
 exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
@@ -319,11 +319,14 @@ exports.TOKEN_KEYS = {
   3: process.env.ADMIN_AUTH,
 }
 
-exports.uploadFileToCloudinary = function(){
-  const filePath = "C:\Users\OAUDA\Desktop\workspace\Seminar-management-Backend\README.md"
-  cloudinary.uploader.upload(filePath, {}).then((response)=>{
-    console.log("fileUpload::::response:::", response)
-  })
+exports.uploadFileToCloudinary = async function(){
+  const filePath = "C:/Users/OAUDA/Documents/CSC 400 presentation slides.pptx"
+  const x = cloudinary.uploader.upload(filePath, {cloud_name:"dgpnmwhra", allowed_formats:[""]})
+  x.then((resp)=>{console.log("responseherrer::::", resp)})
+  .catch((err)=>{console.log("err::", err)})
+  // .then((response)=>{
+  //   console.log("fileUpload::::response:::", response)
+  // })
 }
 
-this.uploadFileToCloudinary()
+// this.uploadFileToCloudinary()

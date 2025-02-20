@@ -1,5 +1,6 @@
 const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration } = require("../db/query")
 const { P } = require("../helpers/consts")
+const { errorEmitter, errorEvents } = require("../helpers/emitters/errors")
 const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
 const { pInCheck, pExCheck } = require("../helpers/util")
 
@@ -99,7 +100,7 @@ exports.updateSeminarRegistration = async (req, res) => {
         if (data?.length < 1) {
             return notFound(res, "Selected registration not found")
         }
-        let detail = ["status=0"] //isSupervisorPending= 1","isSupervisorApproved=0","isCoordinatorPending = 0", "isCoordinatorApproved = 0"
+        let detail = [`${P.isSupervisorPending}= 1`,`${P.isSupervisorApproved}=0`,`${P.isCoordinatorPending} = 0`, `${P.isCoordinatorApproved} = 0, ${P.status}=0`] 
         const { title, programType, seminarType } = req?.body
 
         if (seminarType) {
@@ -129,5 +130,13 @@ exports.updateSeminarRegistration = async (req, res) => {
         return internalServerError(res, "Unable to update registration at current time")
     }
 
+}
+
+exports.markAttendance = async (req, res) =>{
+    try{ 
+        const missing = pExCheck(req.body, [P.sid, P.token])
+    }catch(error){
+        errorEmitter.emit(errorEvents.err, error.message, error.stack, user, session)
+    }
 }
 

@@ -57,6 +57,7 @@ exports.P = {
     approve:"approve",
     status:"status",
     feedback:"feedback",
+    token:"token"
 }
 exports.USER_TYPES = {
     0:"student",

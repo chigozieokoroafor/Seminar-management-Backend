@@ -13,6 +13,7 @@
     "html-pdf-node": "^1.0.8",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "mysql2": "^3.11.5",
     "nodemailer": "^6.9.16",
     "nodemon": "^3.1.7",

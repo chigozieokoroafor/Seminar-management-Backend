@@ -144,7 +144,8 @@ exports.getSeminarRegistrationForSpecificUser = async (user_id, year) => {
     return await forms.findOne({
         where: {
             sid: user_id,
-            session: year
+            session: year,
+            isPresented:false
         },
         attributes: [P.id, P.seminarType, P.detail, P.session, P.status, P.isCoordinatorApproved, P.isSupervisorApproved]
     })

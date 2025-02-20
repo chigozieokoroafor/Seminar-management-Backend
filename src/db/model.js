@@ -281,14 +281,17 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms , {
     },
     seminarType:{ //concept or progress
         type: DataTypes.STRING(20)
-    },
-    
+    }, 
     session: {
         type: DataTypes.STRING(15)
     },
     status:{
         type: DataTypes.TINYINT,
         defaultValue:0  //statuses - {0:"supervisor pending", 1:"coordinator pending", 2:"approved", 3:"studentPending for feedback"}
+    },
+    isPresented:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
     
 }, {
