@@ -3,11 +3,12 @@ const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
 const fetch = require("node-fetch")
 const { success } = require("./statusCodes")
-
+const multer = require("multer");
 const pdfkit = require("pdfkit")
 const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
 const cloudinary = require("cloudinary").v2
+const {CloudinaryStorage} = require("multer-storage-cloudinary")
 
 cloudinary.config({api_key:process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET})
 
@@ -20,6 +21,18 @@ exports.createUserSession = (req, d, secret)=>{
   const token = jwt.sign({payload:d}, secret ? secret:process.env.SECRET_KEY, {expiresIn:expTime})
   req.session.token = token;
 }
+
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "presentations",
+    resource_type: "raw", // Use "raw" for non-image files
+    format: async (req, file) => "pptx", // Ensuring the file remains .pptx
+  },
+});
+
+const upload = multer({ storage });
 
 const secret = process.env.AUTH_KEY
 
