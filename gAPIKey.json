@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "seminar-453020",
+  "private_key_id": "a6e7a9911370ab63a7c7feaa122c5bdd3d280d3a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDMFfKLhP2J0piE\nsnUBJqg/f/T6Oai5igrJ1U86vwbwQNYnlilYC9E/28AH7XXmtilJIM3Dlg+DKP0p\n6yWPkWROlSANfi95xyojlOIOWiWdinYufOnRTtDwXczer2N3ftWD1GjajzwXyIqn\nLlXyhZGn+c43WVjyQytWiGz6RgMUWUMoc+juHsAxDdSFF0+G3wN56WTXOZ8lSziV\nI30Mws3yUSjyoSTpxATUHbQeLu2NU+1U9yTZcNyU7VBk9cWX1CJFn806gcGeR2jA\nzeOwSAx0sNIGOqfmGxtROy9LrWRAOAJU8E8TBWiWq2ZSXfEt4Dk60uTbPMpbSyvt\nzzAIbK/jAgMBAAECggEABEL3EBvEUZLwtWCmmdINVFofKvR2Rf2QcRt/ronboruv\n3R7BGUIR6gP0NBYszpcCMLE7Krjg9QuvkacD30YZcpyhkTaP1jqm8hxDRipyu6Hv\nCtR363N6YHKM+x9tc8rVuY1/bQTtq893ubr5d3l7i6bnO/elKFXnu0RZBjbdDJkx\nBOAELbUgjMn17JkrjAM49iuAyrS7W9L+ZrOAhyxd44XLs1uszTHabPIV1AcoLek9\n5GKgxPzJRwhOWdadKlHlLDyDDkbYUw33KAZPCLzDsgQNf4qScuu+i5ybl9B6U2dH\n+TirdBKNxdhmKXqHQHumcnCgb0Eg8HG/k8vRjBvtmQKBgQDtK6C0xTKPMPjVJNzl\nxbvk+NE87AXCgd4OChS2c5V8V0ctqyqqSlPkhISH/V84VzCYCQOfjavROI9Ab5k3\nWriMSTqw294iWp6hGzgzThICHUc2rOYyn0dM4sKqllUAtWkdyyIoEJIiBFSTWYBv\nZQ2hu0eSu6zb9HdDhM11BodhuwKBgQDcSeO/w0ndBfj9xllAeOEW8r5fEGyf1Nbo\n8KcZJ7244wZisqzKtiM4MxGXe6J+G5biIjtTO/PC6BcXsdZVwdHiGONTaBrDqt2W\nK2/kAVk4rnIFra7//M57Nso6XTlPRIt6eKl0aN4ejvCXUida32HlxL6xpI3uS2My\nSwCLOb1T+QKBgGQYNJP2Ydcy+OGj1CKZKCqDpHMMvYWQn7HXKVSzRVSb1St+ANyr\nz+oyz2hBU82IZrbTnxbYiLodH8A3GTfWbuquATohIQforOgbf8WPXmRMDQETSXf1\n5vaZAUVTev54kauETp8QF0yJ/VPOwzjAMleenZ9c26Bc9XSmeLu6DKr/AoGACqDe\nBjCL7cgN/WCGid/LLGpF2RxXwVZpkA+cYFBUjQkXE8f/IkCrbli4bpCehGscWojA\nSAHKfwrnolMIPlb9o2UEAtAxCmPCES7DVULjZSK1iaSZnuw5oiRAmZRJ4ZMzD5Om\nyWEN5neLECH8mBvTA1z8vmFsH6UvgguwWQdOJTECgYEA4X8uTSZQRKVxwCyoBfU4\njOJ0FtifzHL6X1S9g6iya6LGdKO7h2qZVObHhh1P2XTZIwOmemJoHB3lnZHioAMg\n1yzgowclEPLlt0dAZmn7uCrQLmOg+RLe0xARfIzGPRMtJ0OXhBo6mkbctZpkw0vy\n32cZObvEI28g+n73yiEXrFI=\n-----END PRIVATE KEY-----\n",
+  "client_email": "seminar-documents@seminar-453020.iam.gserviceaccount.com",
+  "client_id": "111408686018544609680",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/seminar-documents%40seminar-453020.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

@@ -8,17 +8,21 @@ const pdfkit = require("pdfkit")
 const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
 const cloudinary = require("cloudinary").v2
-const {CloudinaryStorage} = require("multer-storage-cloudinary")
+const { CloudinaryStorage } = require("multer-storage-cloudinary")
+const { google } = require("googleapis")
+const gApiKeys = require("../../gAPIKey.json")
+const { ALL_MIME_TYPES } = require("./consts")
+const fs = require("fs")
 
-cloudinary.config({api_key:process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET})
+cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
 
 exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
 }
 
-exports.createUserSession = (req, d, secret)=>{
-  const expTime=  1000 * 60 * 1 // 1 hour
-  const token = jwt.sign({payload:d}, secret ? secret:process.env.SECRET_KEY, {expiresIn:expTime})
+exports.createUserSession = (req, d, secret) => {
+  const expTime = 1000 * 60 * 1 // 1 hour
+  const token = jwt.sign({ payload: d }, secret ? secret : process.env.SECRET_KEY, { expiresIn: expTime })
   req.session.token = token;
 }
 
@@ -147,32 +151,33 @@ exports.getStudentDetailFronTrackNetque = async (formId, surname) => {
 
 }
 
-exports.createPDF_ =  () => {
+exports.createPDF_ = () => {
   // date, coordinator-name, 
   // use pdfkit to do this... pdfkit table for the table part  and normal pdf for the remaining part.
   const table_data = [
     {
-      name:"Chigozie okoroafor",
-      title:"title",
-      degree:"degree",
-      supervisor :"supervisor"
+      name: "Chigozie okoroafor",
+      title: "title",
+      degree: "degree",
+      supervisor: "supervisor"
     }
   ]
   const doc_1 = new pdfkit({ margin: 30, size: "A4" })
-  
+
   const buffers = []
 
-  doc_1.on("data", buffers.push.bind(buffers)) 
-  doc_1.on("end", ()=>{
+  doc_1.on("data", buffers.push.bind(buffers))
+  doc_1.on("end", () => {
     const pdf = Buffer.concat(buffers)
-    console.log("point 1::::::",pdf)
-    this.mailSend("Seminar invite", "okoroaforc14@gmail.com", "find attached your invite", [{filename: "seminarInvite.pdf", content:pdf}])
+    console.log("point 1::::::", pdf)
+    this.mailSend("Seminar invite", "okoroaforc14@gmail.com", "find attached your invite", [{ filename: "seminarInvite.pdf", content: pdf }])
   })
 
   doc_1.image("img\\oau logo.jpeg", {
     fit: [50, 50],
     align: 'left',
-    valign: 'left'})
+    valign: 'left'
+  })
   doc_1
     // .font('fonts/PalatinoBold.ttf')
     .fontSize(14)
@@ -181,12 +186,12 @@ exports.createPDF_ =  () => {
     // .font('fonts/PalatinoBold.ttf')
     .fontSize(14)
     .text('OBAFEMI AWOLOWO UNIVERSITY, ILE-IFE', 180);
-  
+
   doc_1
     // .font('fonts/PalatinoBold.ttf')
     .fontSize(14)
     .text('POSTGRADUATE SEMINAR', 220);
-  
+
   const table = {
     headers: ["S/N", "Name", "Seminar Title", "Degree", "Supervisor"],
     rows: table_data.map((data, index) => [index, data?.name, data?.title, data?.degree, data?.status]),
@@ -198,12 +203,16 @@ exports.createPDF_ =  () => {
 
 exports.sendOutSeminarNotification = function (data, emails) {
   const tableData = [
-    { name: "Chigozie Okoroafor", title: `DEVELOPMENT OF A VALIDATED DATASET
+    {
+      name: "Chigozie Okoroafor", title: `DEVELOPMENT OF A VALIDATED DATASET
 AND A FRAMEWORK TO MITIGATE BIAS IN
-FACIAL IMAGE PROCESSING [Progress]`, degree: "M.Sc", supervisor: "Dr. Adebayo" },
-    { name: "Jane Doe", title: `DEVELOPMENT OF A VALIDATED DATASET
+FACIAL IMAGE PROCESSING [Progress]`, degree: "M.Sc", supervisor: "Dr. Adebayo"
+    },
+    {
+      name: "Jane Doe", title: `DEVELOPMENT OF A VALIDATED DATASET
 AND A FRAMEWORK TO MITIGATE BIAS IN
-FACIAL IMAGE PROCESSING [Progress]`, degree: "Ph.D", supervisor: "Dr. Smith" },
+FACIAL IMAGE PROCESSING [Progress]`, degree: "Ph.D", supervisor: "Dr. Smith"
+    },
     { name: "Chigozie Okoroafor", title: "Seminar Title", degree: "M.Sc", supervisor: "Dr. Adebayo" },
     { name: "Jane Doe", title: "AI and Machine Learning", degree: "Ph.D", supervisor: "Dr. Smith" },
     { name: "Chigozie Okoroafor", title: "Seminar Title", degree: "M.Sc", supervisor: "Dr. Adebayo" },
@@ -229,32 +238,32 @@ FACIAL IMAGE PROCESSING [Progress]`, degree: "Ph.D", supervisor: "Dr. Smith" },
 
   // Header Section
   doc.moveDown(2),
-  doc.image("img/oau logo.jpeg", { fit: [60, 60], align: "left", valign: "left" });
+    doc.image("img/oau logo.jpeg", { fit: [60, 60], align: "left", valign: "left" });
   doc
     .fontSize(defaultFontSize)
-    .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", {align:"center"})
+    .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", { align: "center" })
     // .text("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", 120)
     .moveDown(0.5);
   doc.text("OBAFEMI AWOLOWO UNIVERSITY, ILE-IFE, NIGERIA", { align: "center" }).moveDown(0.5);
   doc.text("POSTGRADUATE SEMINAR", { align: "center" }).moveDown();
   doc.moveDown(0.5)
   doc.moveTo(margin, 110) // Starting point (x, y)
-  //  .lineTo(300, 100) // Ending point (x, y)
+    //  .lineTo(300, 100) // Ending point (x, y)
     .lineTo(doc.page.width - margin, 110)
-   .stroke(); // Apply the stroke
-   
+    .stroke(); // Apply the stroke
+
   doc.text(`Dear All,\nOn behalf of the Department, you are cordially invited to the postgraduate seminar presentation with the following details`).moveDown(0.5)
 
   // Draw Table
   drawTable(doc, tableData);
   doc.moveDown()
-  doc.fontSize(defaultFontSize).text(`Venue: Departmental Seminar Room, Foyer I, Computer Building.`,margin, doc.y,  {align:"left" }).moveDown()
-  doc.text(`Date: Wednesday, November 6th, 2024`,margin, doc.y, {align:"left"}).moveDown()
-  doc.text(`Time: 12 pm`, margin, doc.y,{align:"left"}).moveDown()
-  doc.text(`Thanks for participating`,margin, doc.y, {align:"left"}).moveDown()
-  doc.text(`Aina S. (PHD)`, margin, doc.y,{align:"left"}).moveDown()
-  doc.text(`Seminar coordinator`,margin, doc.y, {align:"left"}).moveDown()
-  
+  doc.fontSize(defaultFontSize).text(`Venue: Departmental Seminar Room, Foyer I, Computer Building.`, margin, doc.y, { align: "left" }).moveDown()
+  doc.text(`Date: Wednesday, November 6th, 2024`, margin, doc.y, { align: "left" }).moveDown()
+  doc.text(`Time: 12 pm`, margin, doc.y, { align: "left" }).moveDown()
+  doc.text(`Thanks for participating`, margin, doc.y, { align: "left" }).moveDown()
+  doc.text(`Aina S. (PHD)`, margin, doc.y, { align: "left" }).moveDown()
+  doc.text(`Seminar coordinator`, margin, doc.y, { align: "left" }).moveDown()
+
 
   // Finalize the PDF
   doc.end();
@@ -332,14 +341,191 @@ exports.TOKEN_KEYS = {
   3: process.env.ADMIN_AUTH,
 }
 
-exports.uploadFileToCloudinary = async function(){
+exports.uploadFileToCloudinary = async function () {
   const filePath = "C:/Users/OAUDA/Documents/CSC 400 presentation slides.pptx"
-  const x = cloudinary.uploader.upload(filePath, {cloud_name:"dgpnmwhra", allowed_formats:[""]})
-  x.then((resp)=>{console.log("responseherrer::::", resp)})
-  .catch((err)=>{console.log("err::", err)})
+  const x = cloudinary.uploader.upload(filePath, { cloud_name: "dgpnmwhra", allowed_formats: [""] })
+  x.then((resp) => { console.log("responseherrer::::", resp) })
+    .catch((err) => { console.log("err::", err) })
   // .then((response)=>{
   //   console.log("fileUpload::::response:::", response)
   // })
 }
 
 // this.uploadFileToCloudinary()
+
+const SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+async function googleAuthenticate() {
+  try {
+    const jwtClient = new google.auth.JWT(
+      gApiKeys.client_email,
+      null,
+      gApiKeys.private_key,
+      SCOPES
+    );
+
+    await jwtClient.authorize();
+    return jwtClient;
+  } catch (error) {
+    console.error('Authentication error:', error);
+    throw error;
+  }
+}
+
+async function uploadFile(authClient, filePath, buffer, fileName = null, folderId = null) {
+  try {
+    // Verify file exists
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`File does not exist: ${filePath}`);
+    }
+
+    const drive = google.drive({ version: 'v3', auth: authClient });
+    
+    // Get file extension to determine MIME type
+    const fileExt = filePath.split('.').pop().toLowerCase();
+    const mimeType = ALL_MIME_TYPES[fileExt] || 'application/octet-stream';
+    
+    // Use provided fileName or extract from filePath
+    const actualFileName = fileName || filePath.split('/').pop();
+    
+    let fileMetadata = {
+      name: actualFileName
+    };
+    
+    // Add folder ID if provided
+    if (folderId) {
+      fileMetadata.parents = [folderId];
+    }
+
+    const response = drive.files.create({
+      resource: fileMetadata,
+      media: {
+        // body: fs.createReadStream(filePath),
+        body:buffer,
+        mimeType: mimeType
+      },
+      fields: 'id,name,webViewLink'
+    });
+    
+    // console.log('File uploaded successfully:');
+    // console.log(`- File ID: ${response.data.id}`);
+    // console.log(`- Link: ${response.data.webViewLink}`);
+    
+    return response.data;
+  } catch (error) {
+    console.error('Upload error:', error);
+    throw error;
+  }
+}
+
+// Example usage
+async function main() {
+  try {
+    const authClient = await googleAuthenticate();
+    // Parameters: authClient, filePath, optional fileName, optional folderId
+    const fileData = await uploadFile(
+      authClient, 
+      './1.pptx', 
+      'Presentation', 
+      '19d92LHAWpzV4Dn17-2qTFNFTqhctVURf'
+    );
+    console.log('Upload complete:', fileData);
+  } catch (error) {
+    console.error('Error in main function:', error);
+  }
+}
+
+// main()
+// googleAuthenticate().then(uploadfile).catch(err =>{
+//   console.log("error:::", err)
+// })
+
+
+class Google {
+
+  async authenticate() {
+    try {
+      const jwtClient = new google.auth.JWT(
+        gApiKeys.client_email,
+        null,
+        gApiKeys.private_key,
+        SCOPES
+      );
+  
+      await jwtClient.authorize();
+      return jwtClient;
+    } catch (error) {
+      console.error('Authentication error:', error);
+      throw error;
+    }
+  }
+
+  async uploadFile(buffer, fileExt, fileName = null, folderId = null) {
+    try {
+      // Verify file exists
+      // if (!fs.existsSync(filePath)) {
+      //   throw new Error(`File does not exist: ${filePath}`);
+      // }
+  
+      const drive = google.drive({ version: 'v3', auth: await this.authenticate() });
+      
+      // Get file extension to determine MIME type
+      // const fileExt = filePath.split('.').pop().toLowerCase();
+      const mimeType = ALL_MIME_TYPES[fileExt] || 'application/octet-stream';
+      
+      // Use provided fileName or extract from filePath
+      const actualFileName = fileName  // || filePath.split('/').pop();
+      
+      let fileMetadata = {
+        name: actualFileName
+      };
+      
+      // Add folder ID if provided
+      if (folderId) {
+        fileMetadata.parents = [folderId];
+      }
+  
+      const response = drive.files.create({
+        resource: fileMetadata,
+        media: {
+          // body: fs.createReadStream(filePath),
+          body:buffer,
+          mimeType: mimeType
+        },
+        fields: 'id,name,webViewLink'
+      });
+
+      await this.updateFilePermissions(drive, response.data.id)
+      
+      // console.log('File uploaded successfully:');
+      // console.log(`- File ID: ${response.data.id}`);
+      // console.log(`- Link: ${response.data.webViewLink}`);
+      
+      return response.data;
+    } catch (error) {
+      console.error('Upload error:', error);
+      throw error;
+    }
+  }
+
+  async updateFilePermissions (drive, fileId){
+    try{
+      const permission = {
+        role:"reader",
+        type:"anyone"
+        
+      }
+      await drive.permissions.create({fileId, requestBody:permission})
+    }catch(error){
+      console.log("error:::", error)
+      // throw error
+    }
+
+
+  }
+
+}
+
+module.exports = {
+  Google
+}

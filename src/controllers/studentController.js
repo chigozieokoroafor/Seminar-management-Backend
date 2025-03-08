@@ -134,9 +134,14 @@ exports.updateSeminarRegistration = async (req, res) => {
 
 exports.markAttendance = async (req, res) =>{
     try{ 
-        const missing = pExCheck(req.body, [P.sid, P.token])
+        const missing = pExCheck(req.body, [P.sid, P.token]) //sid - seminarId, token- token pin.
+        if (missing.length > 0){    
+            return generalError(res, `Missing fields: ${missing?.toLocaleString()}`)
+        }
+        
     }catch(error){
         errorEmitter.emit(errorEvents.err, error.message, error.stack, user, session)
     }
 }
+
 

@@ -13,7 +13,8 @@ const { users,
     students,
     error_logs,
     forms,
-    feedbacks
+    feedbacks,
+    applicationDocuments
 } = require("./model")
 
 const admin_sync = async (year) => {
@@ -36,7 +37,8 @@ const dev_sync = async (year) => {
     students.sync({ alter: true })
     error_logs.sync({ alter: true })
     forms.sync({ alter: true }),
-        feedbacks(year).sync({ alter: true })
+    feedbacks(year).sync({ alter: true })
+    applicationDocuments.sync({alter:true})
 }
 
 year = "2021/2022"

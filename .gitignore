@@ -2,3 +2,4 @@ node_*
 .env
 .vscode
 test.js
+*ppt*
