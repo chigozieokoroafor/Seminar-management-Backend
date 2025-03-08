@@ -60,13 +60,16 @@ exports.P = {
     feedback:"feedback",
     token:"token"
 }
+
 exports.USER_TYPES = {
     0:"student",
     1:"supervisor",
     2:"coordinator",
     3:"admin"
 }
+
 exports.PAGE_LIMIT = 20
+
 exports.DEFAULT_VENUE = "Departmental Seminar Room, Foyer I, Computer Building"
 
 exports.ALL_MIME_TYPES = {
@@ -758,4 +761,18 @@ exports.ALL_MIME_TYPES = {
     "zip": "application/zip",
     "zir": "application/vnd.zul",
     "zmm": "application/vnd.handheld-entertainment+xml"
+}
+
+exports.GKEYS = {
+    "type": process.env.g_type,
+    "project_id": process.env.g_project_id,
+    "private_key_id": process.env.g_private_key_id,
+    "private_key": process.env.g_private_key,
+    "client_email": process.env.g_client_email,
+    "client_id": process.env.g_client_id,
+    "auth_uri": process.env.g_auth_uri,
+    "token_uri": process.env.g_token_uri,
+    "auth_provider_x509_cert_url": process.env.g_auth_provider_x509_cert_url,
+    "client_x509_cert_url": process.env.g_client_x509_cert_url,
+    "universe_domain": process.env.g_universe_domain,
   }

@@ -10,8 +10,8 @@ const pdfkitTable = require("pdfkit-table")
 const cloudinary = require("cloudinary").v2
 const { CloudinaryStorage } = require("multer-storage-cloudinary")
 const { google } = require("googleapis")
-const gApiKeys = require("../../gAPIKey.json")
-const { ALL_MIME_TYPES } = require("./consts")
+// const gApiKeys = require("../../gAPIKey.json")
+const { ALL_MIME_TYPES, GKEYS } = require("./consts")
 const fs = require("fs")
 
 cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
@@ -358,9 +358,9 @@ const SCOPES = ["https://www.googleapis.com/auth/drive"]
 async function googleAuthenticate() {
   try {
     const jwtClient = new google.auth.JWT(
-      gApiKeys.client_email,
+      GKEYS.client_email,
       null,
-      gApiKeys.private_key,
+      GKEYS.private_key,
       SCOPES
     );
 
