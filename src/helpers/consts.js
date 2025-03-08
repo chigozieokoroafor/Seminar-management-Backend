@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 exports.DEFAULT_TABLE_NAMES = {
     users: "users",
     sessions: "sessions",

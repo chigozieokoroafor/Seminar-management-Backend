@@ -103,7 +103,7 @@ exports.signin =async (req, res) => {
     try {
       // const user = await getUserByEmail(email)
       const user = (await getUserByEmailRaw(email))[0]
-      // console.log("user:::", user)
+      console.log("user:::", user)
   
       if (!user) {
         // return res.status(404).json({ msg: "Account with credentials provided doesn't exist" });
@@ -126,8 +126,9 @@ exports.signin =async (req, res) => {
         mailSend("Account verification",email, emailTemp);
         return created(res, "Verification link sent, kindly verify to proceed")
       }
-
-      const auth_token = TOKEN_KEYS[user?.userType]
+      console.log("token::::", user.userType)
+      console.log("tokenKeys::::", TOKEN_KEYS)
+      const auth_token = TOKEN_KEYS[user.userType]
       let {firstName, lastName, middleName, program, isActive, matricNo} = user
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
       return success(res, {token, userType: USER_TYPES[user?.userType], userDetail:{firstName, lastName, middleName, program, isActive: (user?.userType != 0 || isActive) ? true : false, matricNo}, session}, "")

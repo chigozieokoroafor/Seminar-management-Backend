@@ -3,6 +3,8 @@ require("dotenv").config()
 const jwt = require("jsonwebtoken")
 const { unAuthorized, generalError, expired, invalid, newError } = require("../helpers/statusCodes");
 const { fetchUserForMiddleware } = require("../db/query");
+const multer = require("multer");
+const { ALL_MIME_TYPES } = require("./consts");
 
 // const { P } = require("../consts");
 
@@ -94,6 +96,7 @@ const coordAuth = (req, res, next) =>{ // auth for coordinators
         next();
     });
 }
+
 const supAuth = (req, res, next) =>{ // auth for supervisors
     new Auth(process.env.SUPERVISOR_AUTH).auth(req, res, () => {
         if (req?.err?.err) {
@@ -105,9 +108,47 @@ const supAuth = (req, res, next) =>{ // auth for supervisors
     });
 }
 
+const storage = multer.memoryStorage()
+const fileFilter = (req, file, cb) =>{
+    const allowedFileTypes = [
+        ALL_MIME_TYPES.ppt,ALL_MIME_TYPES.pptx, ALL_MIME_TYPES.pdf, ALL_MIME_TYPES.doc, ALL_MIME_TYPES.docx
+    ]
+    // console.log("tests:::2")
+    
+    if (allowedFileTypes.includes(file.mimetype)){
+        cb(null, true)
+    }else{
+        // console.log("tests:::4")
+        cb(new Error(`Invalid file type. Only PPT, PPTX, PDF, DOC, DOCX files are allowed.`));
+    }
+}
+
+const upload = multer({storage:storage, fileFilter:fileFilter, limits: {
+    fileSize: 5 * 1024 * 1024, // 10MB limit
+    files: 1                     // Maximum 5 files per upload
+  }})
+
+const uploadMiddleWare = (req, res, next) =>{
+    // console.log("tests:::1")
+    const uploadF = upload.single("file")
+    // console.log("tests:::3")
+
+    uploadF(req, res, (err)=>{
+        if (err){
+            return generalError(res, err.message)
+        }
+
+        if (!req.file) {
+            return generalError(res, 'Document required. Please upload a file.');
+          }
+        next()
+    })
+}
+
 module.exports = {
     studentAuth,
     adminAuth,
     coordAuth,
-    supAuth
+    supAuth,
+    uploadMiddleWare
 }

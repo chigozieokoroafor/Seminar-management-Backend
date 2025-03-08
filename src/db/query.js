@@ -1,4 +1,4 @@
-const { sessions, students, users, error_logs, allCourses, seminars, forms, feedbacks } = require("./model");
+const { sessions, students, users, error_logs, allCourses, seminars, forms, feedbacks, applicationDocuments } = require("./model");
 const { P, DEFAULT_TABLE_NAMES, DEFAULT_VENUE } = require("../helpers/consts");
 const { pool } = require("./conn");
 const { Op } = require("sequelize")
@@ -193,4 +193,8 @@ exports.getActiveUserEmails = async () => {
         attributes:[P.email],
         raw:true
     })
+}
+
+exports.uploadDocumentDataForForm = async(data) =>{
+    return await applicationDocuments.create(data)
 }

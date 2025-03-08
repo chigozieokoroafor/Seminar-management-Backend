@@ -1,8 +1,8 @@
-const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration } = require("../db/query")
+const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration, uploadDocumentDataForForm } = require("../db/query")
 const { P } = require("../helpers/consts")
 const { errorEmitter, errorEvents } = require("../helpers/emitters/errors")
 const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
-const { pInCheck, pExCheck } = require("../helpers/util")
+const { pInCheck, pExCheck, Google } = require("../helpers/util")
 
 exports.getProfile = async (req, res, next) => {
     const user_id = req?.user?.uid
@@ -50,7 +50,18 @@ exports.initiateSeminarRegistration = async (req, res) => {
     isNew = await validateSeminarExists(data) ? false : true
 
     try {
-        if (isNew) { await registerSeminar(data) }
+        if (isNew) { 
+            const new_seminar = await registerSeminar(data) 
+            const google = new Google
+            const g_resp = await google.uploadFile(req?.file?.buffer, req?.file?.mimetype, new_seminar[P.fid])
+            const doc_data = {
+                fid:new_seminar?.id,
+                gid: g_resp?.id, 
+                url: g_resp?.webViewLink, 
+                session: data.session
+            }
+            await uploadDocumentDataForForm(doc_data)
+        }
         else { updateSeminarForReg(data, { isSupervisorPending: true, isSupervisorApproved: false, isCoordinatorPending: false, isCoordinatorApproved: false }) }
     } catch (error) {
         await logError(error?.message, "initiateSeminarRegistration")
@@ -142,6 +153,13 @@ exports.markAttendance = async (req, res) =>{
     }catch(error){
         errorEmitter.emit(errorEvents.err, error.message, error.stack, user, session)
     }
+}
+
+exports.uploadFile = async (req, res) =>{
+    // console.log("body:::", req)
+    
+
+    return success(res, {}, "testing")
 }
 
 

@@ -2,7 +2,7 @@ const { Router } = require("express");
 const adminController = require("./src/controllers/admincontroller");
 const authController = require("./src/controllers/authController");
 const baseController = require("./src/controllers/baseController");
-const { studentAuth, adminAuth, supAuth, coordAuth } = require("./src/helpers/middleware");
+const { studentAuth, adminAuth, supAuth, coordAuth, uploadMiddleWare } = require("./src/helpers/middleware");
 const coordinatorController = require("./src/controllers/coordinatorController");
 const studentController = require("./src/controllers/studentController");
 const supervisorController = require("./src/controllers/supervisorController")
@@ -33,9 +33,12 @@ router.post("/auth/pwd/reset", authController.updatePassword)
 
 
 router.get("/student/home", studentAuth, studentController.getUserDataForHomePage)
-router.post("/student/seminar/register", studentAuth, studentController.initiateSeminarRegistration)
+router.post("/student/seminar/register", studentAuth, uploadMiddleWare, studentController.initiateSeminarRegistration)
 router.get("/student/seminar/register/get", studentAuth, studentController.getSeminarRegistrations)
 router.put("/student/seminar/update", studentAuth, studentController.updateSeminarRegistration)
+
+router.post("/file/upload", uploadMiddleWare, studentController.uploadFile)
+
 
 // getSeminarRegistrations
 // router.get("/student/home/pending", studentAuth, studentController)

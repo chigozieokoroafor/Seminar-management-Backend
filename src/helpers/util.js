@@ -1,3 +1,4 @@
+require("dotenv").config()
 const randToken = require("rand-token")
 const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
@@ -7,14 +8,25 @@ const multer = require("multer");
 const pdfkit = require("pdfkit")
 const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
-const cloudinary = require("cloudinary").v2
-const { CloudinaryStorage } = require("multer-storage-cloudinary")
+const { Readable } = require('stream');
+// const cloudinary = require("cloudinary").v2
+// const { CloudinaryStorage } = require("multer-storage-cloudinary")
 const { google } = require("googleapis")
 // const gApiKeys = require("../../gAPIKey.json")
 const { ALL_MIME_TYPES, GKEYS } = require("./consts")
-const fs = require("fs")
+// const fs = require("fs")
 
-cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
+// cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
+
+// Add this at the top of your file
+// const crypto = require('crypto');
+// try {
+//   crypto.setFips(false);
+//   // For Node.js 17+
+//   crypto.setEngine('nodejs-legacy');
+// } catch (error) {
+//   // Ignore errors for Node.js versions that don't support these methods
+// }
 
 exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
@@ -27,16 +39,16 @@ exports.createUserSession = (req, d, secret) => {
 }
 
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "presentations",
-    resource_type: "raw", // Use "raw" for non-image files
-    format: async (req, file) => "pptx", // Ensuring the file remains .pptx
-  },
-});
+// const storage = new CloudinaryStorage({
+//   cloudinary,
+//   params: {
+//     folder: "presentations",
+//     resource_type: "raw", // Use "raw" for non-image files
+//     format: async (req, file) => "pptx", // Ensuring the file remains .pptx
+//   },
+// });
 
-const upload = multer({ storage });
+// const upload = multer({ storage });
 
 const secret = process.env.AUTH_KEY
 
@@ -341,105 +353,140 @@ exports.TOKEN_KEYS = {
   3: process.env.ADMIN_AUTH,
 }
 
-exports.uploadFileToCloudinary = async function () {
-  const filePath = "C:/Users/OAUDA/Documents/CSC 400 presentation slides.pptx"
-  const x = cloudinary.uploader.upload(filePath, { cloud_name: "dgpnmwhra", allowed_formats: [""] })
-  x.then((resp) => { console.log("responseherrer::::", resp) })
-    .catch((err) => { console.log("err::", err) })
-  // .then((response)=>{
-  //   console.log("fileUpload::::response:::", response)
-  // })
-}
+// exports.uploadFileToCloudinary = async function () {
+//   const filePath = "C:/Users/OAUDA/Documents/CSC 400 presentation slides.pptx"
+//   const x = cloudinary.uploader.upload(filePath, { cloud_name: "dgpnmwhra", allowed_formats: [""] })
+//   x.then((resp) => { console.log("responseherrer::::", resp) })
+//     .catch((err) => { console.log("err::", err) })
+//   // .then((response)=>{
+//   //   console.log("fileUpload::::response:::", response)
+//   // })
+// }
 
 // this.uploadFileToCloudinary()
 
-const SCOPES = ["https://www.googleapis.com/auth/drive"]
+function bufferToStream(buffer) {
+  const readable = new Readable();
+  readable.push(buffer);
+  readable.push(null);
+  return readable;
+}
 
 class Google {
-
   async authenticate() {
     try {
+      // Make sure GKEYS is defined
+      if (!GKEYS || !GKEYS.client_email || !GKEYS.private_key) {
+        throw new Error('Google API credentials are missing or invalid');
+      }
+      const SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+      // console.log("GKEYS.private_key::: ",GKEYS.private_key)
+      // console.log("GKEYS.email::: ",GKEYS.client_email)
+
       const jwtClient = new google.auth.JWT(
-        gApiKeys.client_email,
+        GKEYS.client_email,
         null,
-        gApiKeys.private_key,
+        GKEYS.private_key,
         SCOPES
       );
   
       await jwtClient.authorize();
+      console.log("scopes::::",jwtClient.scopes)
+
+      console.log("jwtClient:::", jwtClient)
       return jwtClient;
     } catch (error) {
-      console.error('Authentication error:', error);
-      throw error;
+      console.error('Authentication error::::::', error);
+      return null;
     }
   }
 
-  async uploadFile(buffer, fileExt, fileName = null, folderId = null) {
+  async uploadFile(buffer, fileExt, fileName, folderId = null) {
     try {
-      // Verify file exists
-      // if (!fs.existsSync(filePath)) {
-      //   throw new Error(`File does not exist: ${filePath}`);
-      // }
-  
-      const drive = google.drive({ version: 'v3', auth: await this.authenticate() });
+      // Check if buffer exists
+      if (!buffer) {
+        throw new Error('File buffer is required');
+      }
+
+      // Get authenticated client
+      const authClient = await this.authenticate();
+      if(!authClient){
+        return null
+      }
+      const drive = google.drive({ version: 'v3', auth: authClient });
       
-      // Get file extension to determine MIME type
-      // const fileExt = filePath.split('.').pop().toLowerCase();
+      // Determine MIME type
       const mimeType = ALL_MIME_TYPES[fileExt] || 'application/octet-stream';
       
-      // Use provided fileName or extract from filePath
-      const actualFileName = fileName  // || filePath.split('/').pop();
-      
+      // Use provided folder ID or default from env
       let fileMetadata = {
-        name: actualFileName
+        name: fileName
       };
       
-      // Add folder ID if provided
+      // Set parents array (folder ID)
       if (folderId) {
         fileMetadata.parents = [folderId];
+      } else if (process.env.DRIVE_FOLDER_ID) {
+        fileMetadata.parents = [process.env.DRIVE_FOLDER_ID];
       }
   
-      const response = drive.files.create({
+      // Create file in Google Drive
+      const response =  await drive.files.create({
         resource: fileMetadata,
         media: {
-          // body: fs.createReadStream(filePath),
-          body:buffer,
+          body: bufferToStream(buffer),
           mimeType: mimeType
         },
         fields: 'id,name,webViewLink'
       });
-
-      await this.updateFilePermissions(drive, response.data.id)
       
-      // console.log('File uploaded successfully:');
-      // console.log(`- File ID: ${response.data.id}`);
-      // console.log(`- Link: ${response.data.webViewLink}`);
+      // console.log("response:::", response)
+
+      // Make file publicly accessible  
+      await this.updateFilePermissions(drive, response.data.id);
       
       return response.data;
+
     } catch (error) {
       console.error('Upload error:', error);
+      return null
+      // throw error;
+    }
+  }
+
+  async updateFilePermissions(drive, fileId) {
+    if (!fileId) {
+      console.error("No file ID provided for permission update");
+      return;
+    }
+    
+    try {
+      const permission = {
+        role: "reader",
+        type: "anyone"
+      };
+      
+      await drive.permissions.create({
+        fileId: fileId, 
+        requestBody: permission
+      });
+      
+      // Get updated file with public links
+      const updatedFile = await drive.files.get({
+        fileId: fileId,
+        fields: 'webViewLink,webContentLink'
+      });
+      
+      return updatedFile.data;
+    } catch (error) {
+      console.error("Permission update error:", error);
       throw error;
     }
   }
-
-  async updateFilePermissions (drive, fileId){
-    try{
-      const permission = {
-        role:"reader",
-        type:"anyone"
-        
-      }
-      await drive.permissions.create({fileId, requestBody:permission})
-    }catch(error){
-      console.log("error:::", error)
-      // throw error
-    }
-
-
-  }
-
 }
 
 module.exports = {
   Google
 }
+
