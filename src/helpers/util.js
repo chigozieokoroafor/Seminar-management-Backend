@@ -1,10 +1,8 @@
-require("dotenv").config()
+// require("dotenv").config("../../.env")
 const randToken = require("rand-token")
 const nodemailer = require("nodemailer")
 const jwt = require("jsonwebtoken")
 const fetch = require("node-fetch")
-const { success } = require("./statusCodes")
-const multer = require("multer");
 const pdfkit = require("pdfkit")
 const PDFDocument = require("pdfkit")
 const pdfkitTable = require("pdfkit-table")
@@ -18,15 +16,6 @@ const { ALL_MIME_TYPES, GKEYS } = require("./consts")
 
 // cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
 
-// Add this at the top of your file
-// const crypto = require('crypto');
-// try {
-//   crypto.setFips(false);
-//   // For Node.js 17+
-//   crypto.setEngine('nodejs-legacy');
-// } catch (error) {
-//   // Ignore errors for Node.js versions that don't support these methods
-// }
 
 exports.generateUID = (len) => {
   return randToken.uid(len ?? 32)
@@ -347,10 +336,10 @@ function drawRow(doc, y, rowData, columnWidths, isHeader) {
 
 // this.createPDF()
 exports.TOKEN_KEYS = {
-  0: process.env.STUDENT_AUTH,
-  1: process.env.SUPERVISOR_AUTH,
-  2: process.env.COORDINATOR_AUTH,
-  3: process.env.ADMIN_AUTH,
+  "0": process.env.STUDENT_AUTH,
+  "1": process.env.SUPERVISOR_AUTH,
+  "2": process.env.COORDINATOR_AUTH,
+  "3": process.env.ADMIN_AUTH,
 }
 
 // exports.uploadFileToCloudinary = async function () {
