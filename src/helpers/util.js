@@ -17,11 +17,11 @@ const { ALL_MIME_TYPES, GKEYS } = require("./consts")
 // cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
 
 
-exports.generateUID = (len) => {
+function generateUID(len) {
   return randToken.uid(len ?? 32)
 }
 
-exports.createUserSession = (req, d, secret) => {
+function createUserSession (req, d, secret) {
   const expTime = 1000 * 60 * 1 // 1 hour
   const token = jwt.sign({ payload: d }, secret ? secret : process.env.SECRET_KEY, { expiresIn: expTime })
   req.session.token = token;
@@ -41,9 +41,9 @@ exports.createUserSession = (req, d, secret) => {
 
 const secret = process.env.AUTH_KEY
 
-exports.backend_url = process.env.BACKEND_BASE_URL
+const backend_url = process.env.BACKEND_BASE_URL
 
-exports.pExCheck = (reqParams, array) => {
+function pExCheck (reqParams, array) {
   let resp = [];
   reqParams = JSON.parse(JSON.stringify(reqParams));
   array.forEach(param => {
@@ -54,7 +54,7 @@ exports.pExCheck = (reqParams, array) => {
   return resp;
 }
 
-exports.pInCheck = (reqParams, array) => {
+function pInCheck(reqParams, array) {
   let resp = [];
   if (reqParams) {
     if (Array.isArray(reqParams)) {
@@ -74,12 +74,12 @@ exports.pInCheck = (reqParams, array) => {
   return resp;
 }
 
-exports.generateToken = (payload, time, s) => {
+function generateToken (payload, time, s) {
   const _secret = s ?? secret
   return jwt.sign({ payload: payload }, _secret, { expiresIn: time })
 }
 
-exports.mailSend = (subject, to, html, attachments) => { //attachments should be an array
+function mailSend (subject, to, html, attachments) { //attachments should be an array
   try {
     const smtpTransport = nodemailer.createTransport({
       service: "gmail",
@@ -115,7 +115,7 @@ exports.mailSend = (subject, to, html, attachments) => { //attachments should be
   }
 }
 
-exports.destructureToken = (token, s) => {
+function destructureToken (token, s) {
   const _secret = s ? s : secret
 
   try {
@@ -136,7 +136,7 @@ exports.destructureToken = (token, s) => {
   }
 };
 
-exports.getStudentDetailFronTrackNetque = async (formId, surname) => {
+async function getStudentDetailFronTrackNetque (formId, surname) {
   const url = process.env.NETQUE_TRACK_URL + `?formId=${formId}&surname=${surname}`
 
   const response = await fetch(url)
@@ -152,7 +152,7 @@ exports.getStudentDetailFronTrackNetque = async (formId, surname) => {
 
 }
 
-exports.createPDF_ = () => {
+function createPDF_ () {
   // date, coordinator-name, 
   // use pdfkit to do this... pdfkit table for the table part  and normal pdf for the remaining part.
   const table_data = [
@@ -202,7 +202,7 @@ exports.createPDF_ = () => {
   doc_1.end()
 }
 
-exports.sendOutSeminarNotification = function (data, emails) {
+function sendOutSeminarNotification (data, emails) {
   const tableData = [
     {
       name: "Chigozie Okoroafor", title: `DEVELOPMENT OF A VALIDATED DATASET
@@ -335,12 +335,14 @@ function drawRow(doc, y, rowData, columnWidths, isHeader) {
 }
 
 // this.createPDF()
-exports.TOKEN_KEYS = {
+const TOKEN_KEYS = {
   "0": process.env.STUDENT_AUTH,
   "1": process.env.SUPERVISOR_AUTH,
   "2": process.env.COORDINATOR_AUTH,
   "3": process.env.ADMIN_AUTH,
 }
+
+// console.log("token:::", this.TOKEN_KEYS)
 
 // exports.uploadFileToCloudinary = async function () {
 //   const filePath = "C:/Users/OAUDA/Documents/CSC 400 presentation slides.pptx"
@@ -476,6 +478,16 @@ class Google {
 }
 
 module.exports = {
-  Google
+  Google,
+  TOKEN_KEYS,
+  sendOutSeminarNotification,
+  destructureToken,
+  mailSend,
+  generateToken,
+  generateUID,
+  pInCheck,
+  pExCheck,
+  createUserSession,
+  backend_url
 }
 

@@ -126,8 +126,8 @@ exports.signin =async (req, res) => {
         mailSend("Account verification",email, emailTemp);
         return created(res, "Verification link sent, kindly verify to proceed")
       }
-      console.log("token::::", user.userType)
-      console.log("tokenKeys::::", TOKEN_KEYS)
+      // console.log("token::::", user.userType)
+      // console.log("tokenKeys::::", TOKEN_KEYS)
       const auth_token = TOKEN_KEYS[user.userType]
       let {firstName, lastName, middleName, program, isActive, matricNo} = user
       const token = generateToken({ uid: user.uid, userType: user?.userType, session: session}, 1*600*60, auth_token);
