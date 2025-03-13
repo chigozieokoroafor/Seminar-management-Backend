@@ -34,8 +34,9 @@ router.post("/auth/pwd/reset", authController.updatePassword)
 
 router.get("/student/home", studentAuth, studentController.getUserDataForHomePage)
 router.post("/student/seminar/register", studentAuth, uploadMiddleWare, studentController.initiateSeminarRegistration)
-router.get("/student/seminar/register/get", studentAuth, studentController.getSeminarRegistrations)
-router.put("/student/seminar/update", studentAuth, studentController.updateSeminarRegistration)
+router.get("/student/seminar/application/fetchAll", studentAuth, studentController.getSeminarApplicationList)
+router.get("/student/seminar/application/fetchSingle", studentAuth, studentController.getSingleSeminarApplication)
+router.put("/student/seminar/application/update", studentAuth, uploadMiddleWare, studentController.updateSeminarRegistration)
 
 router.post("/file/upload", uploadMiddleWare, studentController.uploadFile)
 

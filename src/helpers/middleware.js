@@ -138,9 +138,11 @@ const uploadMiddleWare = (req, res, next) =>{
             return generalError(res, err.message)
         }
 
-        if (!req.file) {
-            return generalError(res, 'Document required. Please upload a file.');
-          }
+        // if (!req.file) {
+        //     return generalError(res, 'Document required. Please upload a file.');
+        //   }
+
+        // console.log("file::::", req?.file)
         next()
     })
 }

@@ -38,11 +38,11 @@ const dev_sync = async (year) => {
     // error_logs.sync({ alter: true })
     // forms.sync({ alter: true }),
     // feedbacks(year).sync({ alter: true })
-    // applicationDocuments.sync({alter:true})
+    applicationDocuments.sync({alter:true})
 }
 
 year = "2021/2022"
-
+dev_sync(year)
 if (process.env.ENV != "dev") {
     dev_sync(year)
 }

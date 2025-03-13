@@ -383,9 +383,9 @@ class Google {
       );
   
       await jwtClient.authorize();
-      console.log("scopes::::",jwtClient.scopes)
+      // console.log("scopes::::",jwtClient.scopes)
 
-      console.log("jwtClient:::", jwtClient)
+      // console.log("jwtClient:::", jwtClient)
       return jwtClient;
     } catch (error) {
       console.error('Authentication error::::::', error);
@@ -474,6 +474,22 @@ class Google {
       console.error("Permission update error:", error);
       throw error;
     }
+  }
+
+  async getFile(){
+
+  }
+
+  async deleteFile(fileId){
+    const authClient = await this.authenticate();
+      if(!authClient){
+        return null
+      }
+      const drive = google.drive({ version: 'v3', auth: authClient });
+
+      const d = await drive.files.delete({fileId:fileId})
+      console.log("d::::", d)
+      return true
   }
 }
 

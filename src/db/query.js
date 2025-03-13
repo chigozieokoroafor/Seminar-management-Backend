@@ -134,25 +134,48 @@ exports.updateSeminarForReg = async (update, query) => {
     return await forms.update(update, { where: query })
 }
 
-exports.getSeminarRegistrationForSpecificUser = async (user_id, year) => {
-    // const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
-    // LEFT JOIN '${DEFAULT_TABLE_NAMES.feedbacks}_${year}' as feedback ON forms.${P.id} = feedback.${P.fid} //this is extra query for the feedbacks
-    // LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as supervisor ON  forms.${P.lid} = supervisor.${P.uid}
-    // supervisor.${P.first_name} as sp_firstName, supervisor.${P.last_name} as sp_lastName, supervisor.${P.middleName} as sp_middleName
-    // return (await pool.promise().query(query))[0]
+// exports.getSeminarRegistrationForSpecificUser = async (user_id, fid) => {
+//     // const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType} FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE forms.${P.sid} = '${user_id}'`
+//     // LEFT JOIN '${DEFAULT_TABLE_NAMES.feedbacks}_${year}' as feedback ON forms.${P.id} = feedback.${P.fid} //this is extra query for the feedbacks
+//     // LEFT JOIN ${DEFAULT_TABLE_NAMES.users} as supervisor ON  forms.${P.lid} = supervisor.${P.uid}
+//     // supervisor.${P.first_name} as sp_firstName, supervisor.${P.last_name} as sp_lastName, supervisor.${P.middleName} as sp_middleName
+//     // return (await pool.promise().query(query))[0]
 
-    return await forms.findOne({
-        where: {
-            sid: user_id,
-            session: year,
-            isPresented:false
-        },
-        attributes: [P.id, P.seminarType, P.detail, P.session, P.status, P.isCoordinatorApproved, P.isSupervisorApproved]
-    })
+//     return await forms.findOne({
+//         where: {
+//             sid: user_id,
+//             id: fid,
+//             isPresented:false
+//         },
+//         attributes: [P.id, P.seminarType, P.detail, P.session, P.status, P.isCoordinatorApproved, P.isSupervisorApproved],
+//         // order
+//     })
+// }
+
+exports.getSeminarRegistrationForSpecificUser = async (user_id, fid) => {
+    const query = `SELECT forms.id, forms.${P.lid}, forms.${P.sid},forms.${P.detail}, forms.${P.isSupervisorPending}, forms.${P.isSupervisorApproved}, forms.${P.isCoordinatorPending}, forms.${P.isCoordinatorApproved}, forms.${P.seminarType}, doc.${P.filename}, doc.${P.url} FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.documents} doc ON doc.${P.fid} = forms.id  WHERE forms.${P.sid} = '${user_id}' AND forms.id = '${fid}'`
+    return (await pool.promise().query(query))[0]
+
+    // return await forms.findOne({
+    //     where: {
+    //         sid: user_id,
+    //         id: fid,
+    //         isPresented:false
+    //     },
+    //     attributes: [P.id, P.seminarType, P.detail, P.session, P.status, P.isCoordinatorApproved, P.isSupervisorApproved],
+    //     // order
+    // })
+}
+
+exports.getAllSeminarApplicationsForUser = async (user_id, session) =>{
+    // const query = `SELECT ${P.id}, ${P.detail}, ${P.seminarType}, ${P.lid},  FROM ${DEFAULT_TABLE_NAMES.forms} as forms  LEFT JOIN ON ${DEFAULT_TABLE_NAMES.users}.id = forms.${P.lid} WHERE ${P.sid} = '${user_id}' AND ${P.session} = ${session} ORDER BY ${P.createdAt} ASC;`
+    const query = `SELECT form.id, form.detail, form.lid, form.seminarType, form.status, CONCAT(lecturer.designation, " ",lecturer.firstName, ' ', lecturer.lastName) AS supervisor FROM ${DEFAULT_TABLE_NAMES.forms} form  LEFT JOIN ${DEFAULT_TABLE_NAMES.users} lecturer ON lecturer.${P.uid} = form.${P.lid} WHERE ${P.sid} = '${user_id}' AND ${P.session} = '${session}' ORDER BY form.${P.createdAt} ASC;`
+    // console.log("query:::", query)
+    return (await pool.promise().query(query))[0]
 }
 
 exports.getSpecificSeminarRegistrationById = async (user_id, id) => {
-    const query = `SELECT * FROM ${DEFAULT_TABLE_NAMES.forms} as forms WHERE ${P.id} = ${id} AND  ${P.sid} = '${user_id}' ;`
+    const query = `SELECT *, docs.id as did FROM ${DEFAULT_TABLE_NAMES.forms} as forms LEFT JOIN ${DEFAULT_TABLE_NAMES.documents} docs ON docs.${P.fid} = forms.${P.id} WHERE forms.${P.id} = ${id} AND  ${P.sid} = '${user_id}' ;`
     return (await pool.promise().query(query))[0]
 }
 
@@ -197,4 +220,12 @@ exports.getActiveUserEmails = async () => {
 
 exports.uploadDocumentDataForForm = async(data) =>{
     return await applicationDocuments.create(data)
+}
+
+exports.deleteRegistration = async(fid) =>{
+    return await forms.destroy({where:{id:fid}})
+}
+
+exports.updateDocumentData = async(fid, update) =>{
+    return await applicationDocuments.update(update, {where:{fid}})
 }

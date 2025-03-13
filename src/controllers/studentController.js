@@ -1,4 +1,4 @@
-const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration, uploadDocumentDataForForm } = require("../db/query")
+const { registerSeminar, logError, validateSeminarExists, updateSeminarForReg, getSeminarRegistrationForSpecificUser, getFeedbackForForm, getSpecificSeminarRegistrationById, updateSpecificSeminarRegistration, uploadDocumentDataForForm, deleteRegistration, getAllSeminarApplicationsForUser, updateDocumentData } = require("../db/query")
 const { P } = require("../helpers/consts")
 const { errorEmitter, errorEvents } = require("../helpers/emitters/errors")
 const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
@@ -28,7 +28,7 @@ exports.initiateSeminarRegistration = async (req, res) => {
         return generalError(res, `Un required parameters: ${not_required?.toLocaleString()}`)
     }
 
-    const missing = pExCheck(req?.body, [P.seminarType, P.title, P.programType])
+    const missing = pExCheck(req?.body, [P.seminarType, P.title, P.programType, P.file])
     if (missing?.length > 0) {
         return generalError(res, `Missing parameters: ${missing?.toLocaleString()}`)
     }
@@ -46,16 +46,21 @@ exports.initiateSeminarRegistration = async (req, res) => {
         session: req?.user?.session,
         lid: req?.user?.supervisor
     }
-
+    
     isNew = await validateSeminarExists(data) ? false : true
+
+    let form_Id
 
     try {
         if (isNew) { 
             const new_seminar = await registerSeminar(data) 
+            form_Id = new_seminar?.id
+            const filename = req?.body?.title.replaceAll(" ", "_")
             const google = new Google
-            const g_resp = await google.uploadFile(req?.file?.buffer, req?.file?.mimetype, new_seminar[P.fid])
+            const g_resp = await google.uploadFile(req?.file?.buffer, req?.file?.mimetype, filename)
             const doc_data = {
                 fid:new_seminar?.id,
+                filename:filename + "." +req?.file?.originalname.split(".")[1],
                 gid: g_resp?.id, 
                 url: g_resp?.webViewLink, 
                 session: data.session
@@ -65,17 +70,22 @@ exports.initiateSeminarRegistration = async (req, res) => {
         else { updateSeminarForReg(data, { isSupervisorPending: true, isSupervisorApproved: false, isCoordinatorPending: false, isCoordinatorApproved: false }) }
     } catch (error) {
         await logError(error?.message, "initiateSeminarRegistration")
+        await deleteRegistration(form_Id)
+        
         return internalServerError(res, "Unable to register, internal server error")
     }
     return success(res, {}, "success")
 
 }
 
-exports.getSeminarRegistrations = async (req, res) => {
+exports.getSingleSeminarApplication = async (req, res) => {
     try{
         const user_id = req?.user?.uid
-
-        const data = await getSeminarRegistrationForSpecificUser(user_id, req?.user?.session)
+        const missing = pExCheck(req?.query, [P.fid])
+        if (missing.length > 0){
+            return generalError(res, `Missing query params: ${missing.toLocaleString()}`)
+        }
+        const data = (await getSeminarRegistrationForSpecificUser(user_id,req?.query?.fid ))[0]
         // console.log("data:::", data)
 
         if(!data){
@@ -83,13 +93,39 @@ exports.getSeminarRegistrations = async (req, res) => {
         }
         try{
             const feedback = (await getFeedbackForForm(data?.id, req?.user?.session))
-            return success(res, { form: data, feedback: feedback?feedback : {} })
+            data.feedback = feedback
+            // return success(res, { form: data, feedback: feedback?feedback : {} })
+            return success(res, { application: data, feedback: feedback? feedback : {} })
         }catch(err){
-            return success(res, { form: data, feedback: {} })
+            return success(res, { application: data, feedback: {} })
         }
         
     }catch(error){
-        await logError(error?.message, "getSeminarRegistrations", req?.user?.session)
+        await logError(error?.message, "getSingleSeminarApplication", req?.user?.session)
+        return internalServerError(res, "unable to get registrations at current time")
+    }
+}
+
+exports.getSeminarApplicationList = async(req, res) => {
+    try{
+        const user_id = req?.user?.uid
+
+        const data = await getAllSeminarApplicationsForUser(user_id, req?.user?.session)
+        // console.log("data:::", data)
+
+        if(!data){
+            return success(res, {form:{}, feedback:{}}, "No registrations found")
+        }
+        // try{
+        //     const feedback = (await getFeedbackForForm(data?.id, req?.user?.session))
+        //     return success(res, { form: data, feedback: feedback?feedback : {} })
+        // }catch(err){
+        return success(res, { applications: data })
+        // }
+        
+    }catch(error){
+        console.log("error:::",error)
+        await logError(error?.message, "getSeminarApplicationList", req?.user?.session)
         return internalServerError(res, "unable to get registrations at current time")
     }
 }
@@ -107,7 +143,7 @@ exports.updateSeminarRegistration = async (req, res) => {
             return generalError(res, `Unrequired fields: ${not_required?.toLocaleString()}`)
         }
         const data = await getSpecificSeminarRegistrationById(user_id, req?.query?.id)
-        // console.log("data:::", data)
+        console.log("data:::", data)
         if (data?.length < 1) {
             return notFound(res, "Selected registration not found")
         }
@@ -128,9 +164,32 @@ exports.updateSeminarRegistration = async (req, res) => {
         // detail = JSON_SET(detail, '$.key', 'new_value')
         const update_query = detail?.toLocaleString()
         const update_ = await updateSpecificSeminarRegistration(req?.query?.id, update_query)
+        success(res, {}, "updated successfully")
+
+        if (req?.file){
+            try {
+                console.log("data[0:::]::::", data[0])
+                const filename = title?.replaceAll(" ", "_") ?? data[0]?.detail?.title.replaceAll(" ", "_")
+                const google = new Google
+                const del = await google.deleteFile(data[0].gid)
+                console.log("del::::", del)
+                const g_resp = await google.uploadFile(req?.file?.buffer, req?.file?.mimetype, filename)
+                console.log("g.resp:::", g_resp)
+                const doc_data = {
+                    // fid:new_seminar?.id,
+                    filename:filename + "." +req?.file?.originalname.split(".")[1],
+                    gid: g_resp?.id, 
+                    url: g_resp?.webViewLink, 
+                    session: data.session
+                }
+                await updateDocumentData(req?.query?.id, doc_data)
+            }catch(error){
+                console.log("error::::", error)
+            }
+        }
         // console.log(update_)
 
-        success(res, {}, "updated successfully")
+        
         // add a notification at this point. to supervisors (event trigger.)
         
 

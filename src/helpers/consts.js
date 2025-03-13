@@ -60,7 +60,10 @@ exports.P = {
     approve:"approve",
     status:"status",
     feedback:"feedback",
-    token:"token"
+    token:"token",
+    filename:"filename",
+    url:"url",
+    file:"file"
 }
 
 exports.USER_TYPES = {

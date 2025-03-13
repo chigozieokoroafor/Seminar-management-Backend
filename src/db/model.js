@@ -310,7 +310,9 @@ const applicationDocuments = conn.define(DEFAULT_TABLE_NAMES.documents, {
         type: DataTypes.STRING(255),
         allowNull:false,
     },
-
+    filename:{
+        type:DataTypes.STRING(255),
+    },
     gid:{ //id from google drive
         type: DataTypes.STRING(255),
         allowNull:false
