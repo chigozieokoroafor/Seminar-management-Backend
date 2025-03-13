@@ -11,9 +11,9 @@ exports.getRegistrations = async (req, res) => {
 
 }
 
-exports.getFile = async (req, res) => {
-    // to download documents
-}
+// exports.getFile = async (req, res) => {
+//     // to download documents
+// }
 
 exports.approveDisprove = async (req, res) => {
     const user_id = req?.user?.uid
