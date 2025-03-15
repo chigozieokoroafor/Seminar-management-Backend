@@ -229,3 +229,18 @@ exports.deleteRegistration = async(fid) =>{
 exports.updateDocumentData = async(fid, update) =>{
     return await applicationDocuments.update(update, {where:{fid}})
 }
+
+exports.getStudentsUndersupervisor = async(supervisor) =>{
+    const query =  `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor='${supervisor}' ;`
+    return (await pool.promise().query(query))[0]   
+}
+
+exports.getOtherStudentsNotUndersupervisor = async(supervisor) =>{
+    const query =  `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor !='${supervisor}' ;`
+    return (await pool.promise().query(query))[0]   
+}
+
+exports.getStudentDetailById = async(student) =>{
+    const query = `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE ${P.sid} ='${student}' ;`
+    return (await pool.promise().query(query))[0]
+}

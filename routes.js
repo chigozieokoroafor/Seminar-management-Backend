@@ -49,6 +49,9 @@ router.post("/file/upload", uploadMiddleWare, studentController.uploadFile)
 router.get("/courses/fetch", studentAuth, baseController.getAllCourses)
 
 router.get("/supervisor/registrations/fetch", supAuth, supervisorController.getRegistrations)
+router.get("/supervisor/students/fetch", supAuth, supervisorController.getStudents)
+router.get("/supervisor/student/detail", supAuth, supervisorController.getSpecificStudentDetails)
+router.get("/supervisor/student/application/detail", supAuth, supervisorController.getStudentApplication)
 
 router.post("/coordinator/schedule/create", coordAuth, coordinatorController.createSeminardate)
 router.get("/coordinator/schedule/fetch", coordAuth, coordinatorController.getAllSeminars)

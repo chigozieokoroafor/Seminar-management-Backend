@@ -1,4 +1,4 @@
-const { getSeminarRegistrationBySupervisor, updateFormRegistration, getSpecificSeminarRegBySupervisor, createFeedback, logError } = require("../db/query")
+const { getSeminarRegistrationBySupervisor, updateFormRegistration, getSpecificSeminarRegBySupervisor, createFeedback, logError, getStudentsUndersupervisor, getOtherStudentsNotUndersupervisor, getStudentDetailById, getAllSeminarApplicationsForUser, getSeminarRegistrationForSpecificUser } = require("../db/query")
 const { P } = require("../helpers/consts")
 const { success, generalError, notFound } = require("../helpers/statusCodes")
 const { pExCheck, pInCheck } = require("../helpers/util")
@@ -11,9 +11,50 @@ exports.getRegistrations = async (req, res) => {
 
 }
 
-// exports.getFile = async (req, res) => {
-//     // to download documents
-// }
+exports.getStudents = async(req, res) =>{
+    const user_id = req?.user?.uid
+    const {type} = req?.query
+    let s
+    if (type == "other"){
+        s = getOtherStudentsNotUndersupervisor(user_id)
+    }else{
+        s = await getStudentsUndersupervisor(user_id)
+    }
+
+    return success(res, s)
+    
+}
+
+exports.getSpecificStudentDetails = async(req, res) =>{
+    // const user_id = req?.user?.uid
+    const session = req?.user?.session
+    const missing = pExCheck(req?.query, [P.sid])
+    if (missing.length > 0){
+        return generalError(res, `Missing query params: ${missing.toLocaleString()}`)
+    }
+
+    const sid = req?.query?.sid
+    const student = await getStudentDetailById(sid)
+
+    const seminars = await getAllSeminarApplicationsForUser(sid, session)
+    return success(res, {student: student[0], seminars:seminars})
+    // details, seminars
+
+
+}
+
+exports.getStudentApplication = async(req, res) =>{
+    const missing = pExCheck(req?.query, [P.sid, P.fid])
+    if (missing.length > 0){
+        return generalError(res, `Missing query params: ${missing.toLocaleString()}`)
+    }
+    const {sid, fid} = req. query
+    // sid //astudentId
+    // fid //applicationorSeminarID
+    const applicationDetails = await getSeminarRegistrationForSpecificUser(sid, fid)
+    return success(res, applicationDetails)
+}
+
 
 exports.approveDisprove = async (req, res) => {
     const user_id = req?.user?.uid
@@ -35,7 +76,7 @@ exports.approveDisprove = async (req, res) => {
 
     const exists = await getSpecificSeminarRegBySupervisor({ id: fid, lid: user_id })
     if (!exists) {
-        return notFound(res, "Record not found.")
+        return notFound(res, "Cannot review application of a non supervisee.")
     }
 
     const specReg = exists?.toJSON()

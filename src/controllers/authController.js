@@ -103,7 +103,7 @@ exports.signin =async (req, res) => {
     try {
       // const user = await getUserByEmail(email)
       const user = (await getUserByEmailRaw(email))[0]
-      console.log("user:::", user)
+      // console.log("user:::", user)
   
       if (!user) {
         // return res.status(404).json({ msg: "Account with credentials provided doesn't exist" });

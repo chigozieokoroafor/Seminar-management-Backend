@@ -108,6 +108,8 @@ const supAuth = (req, res, next) =>{ // auth for supervisors
     });
 }
 
+// create middleware for routes that both coordinator and supervisor can use to avoid creating seperate routes for each oth them.
+
 const storage = multer.memoryStorage()
 const fileFilter = (req, file, cb) =>{
     const allowedFileTypes = [
