@@ -11,7 +11,8 @@ const { Readable } = require('stream');
 // const { CloudinaryStorage } = require("multer-storage-cloudinary")
 const { google } = require("googleapis")
 // const gApiKeys = require("../../gAPIKey.json")
-const { ALL_MIME_TYPES, GKEYS } = require("./consts")
+const { ALL_MIME_TYPES, GKEYS, P } = require("./consts")
+const { getFreeSeminarDate, getSeminarOnSpecDateOnQueue, addToQueue, dateMaxLimitReached, updateNumberOnQueue } = require("../db/query")
 // const fs = require("fs")
 
 // cloudinary.config({ api_key: process.env.CLOUDINARY_API_KEY, api_secret: process.env.CLOUDINARY_API_SECRET })
@@ -363,6 +364,65 @@ function bufferToStream(buffer) {
   return readable;
 }
 
+async function addSeminarToQueue(formId, programType, session){
+  // flow :  get dates that still have space. -> get applications that have been approved -> doctorates first -> 
+
+  const freeDate = await getFreeSeminarDate(session)
+  console.log("free:::dates::::", freeDate)
+  if (!freeDate){
+      console.log("no free dates available")
+      return
+  }
+
+  // const spec_seminar = await getSpecSeminarById(formId)
+  // spec_seminar[P.detail][P.programType]
+
+  // there's an issue... Updating no_on_queue for some reason sets new enteries to 1.
+
+  const seminars_already_on_queue = await getSeminarOnSpecDateOnQueue(freeDate.id)
+  // console.log("here:::seminars::::",seminars_already_on_queue)
+  if(seminars_already_on_queue.length < 1){
+    await addToQueue({
+      fid:formId,
+      date_id:freeDate.id,
+      no_on_queue:1
+    })
+
+    
+  }else{
+    console.log("here:::seminars:::before push::::",seminars_already_on_queue)
+    seminars_already_on_queue.push({fid:formId, detail:{programType}})
+
+    // console.log(String(seminars_already_on_queue[0].detail.programType).localeCompare("bsc"))
+    seminars_already_on_queue.sort((first, next) => String(next.detail.programType).localeCompare(first.detail[P.programType]))
+
+    console.log("here:::seminars:::after push sort::::",seminars_already_on_queue)
+
+    if (seminars_already_on_queue.length >3){
+      await dateMaxLimitReached(freeDate.id, session)
+    }
+    const promises = []
+    seminars_already_on_queue.forEach((item, index) => {
+      if (item.fid == formId){
+        promises.push(addToQueue({
+          fid:formId,
+          date_id:freeDate.id,
+          no_on_queue:index+1
+        }))
+      }else{
+        promises.push(updateNumberOnQueue(formId,freeDate.id, index +1))
+      }
+    } )
+    const returns = await Promise.allSettled(promises)
+    console.log("returns:::",returns)
+
+    // console.log("seminars ::::queue:::", seminars_already_on_queue)
+  }
+  
+}
+
+addSeminarToQueue(7, "Msc", "2021/2022")
+
 class Google {
   async authenticate() {
     try {
@@ -504,6 +564,7 @@ module.exports = {
   pInCheck,
   pExCheck,
   createUserSession,
+  addSeminarToQueue,
   backend_url
 }
 

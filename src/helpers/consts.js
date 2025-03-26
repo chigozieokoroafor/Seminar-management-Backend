@@ -16,7 +16,9 @@ exports.DEFAULT_TABLE_NAMES = {
     staff: "staff",
     students: "students",
     feedbacks:"feedbacks",
-    documents:"documents"
+    documents:"documents",
+    queue:'queue',
+    seminar_dates:"seminar_dates",
 }
 
 exports.P = {
@@ -63,7 +65,12 @@ exports.P = {
     token:"token",
     filename:"filename",
     url:"url",
-    file:"file"
+    file:"file",
+    date:"date",
+    time:"time",
+    datetime:"dateTime",
+    date_id:"date_id",
+    no_on_queue:"no_on_queue"
 }
 
 exports.USER_TYPES = {

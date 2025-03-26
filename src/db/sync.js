@@ -14,7 +14,9 @@ const { users,
     error_logs,
     forms,
     feedbacks,
-    applicationDocuments
+    applicationDocuments,
+    queue,
+    seminarDates
 } = require("./model")
 
 const admin_sync = async (year) => {
@@ -25,24 +27,27 @@ const admin_sync = async (year) => {
 }
 
 const dev_sync = async (year) => {
-    // users.sync({ alter: true })
-    // sessions.sync({ alter: true })
-    // seminars.sync({ alter: true })
-    // activity(year).sync({ alter: true })
-    // attendance(year).sync({ alter: true })
-    // projects.sync({ alter: true })
-    // studentCourses(year).sync({ alter: true })
-    // allCourses.sync({ alter: true })
-    // staff.sync({ alter: true })
-    // students.sync({ alter: true })
-    // error_logs.sync({ alter: true })
-    // forms.sync({ alter: true }),
-    // feedbacks(year).sync({ alter: true })
-    // applicationDocuments.sync({alter:true})
+    // await users.sync({ alter: true })
+    // await sessions.sync({ alter: true })
+    // await seminars.sync({ alter: true })
+    // await activity(year).sync({ alter: true })
+    // await attendance(year).sync({ alter: true })
+    // await projects.sync({ alter: true })
+    // await studentCourses(year).sync({ alter: true })
+    // await allCourses.sync({ alter: true })
+    // await staff.sync({ alter: true })
+    // await students.sync({ alter: true })
+    // await error_logs.sync({ alter: true })
+    // await forms.sync({ alter: true })
+    // await feedbacks(year).sync({ alter: true })
+    // await applicationDocuments.sync({alter:true})
+    // await queue.sync({alter:true})
+    // await seminarDates(year).sync({alter:true})
+
 }
 
 year = "2021/2022"
-// dev_sync(year)
+dev_sync(year)
 if (process.env.ENV != "dev") {
     dev_sync(year)
 }

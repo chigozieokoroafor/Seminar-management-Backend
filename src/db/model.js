@@ -245,6 +245,27 @@ const seminars = conn.define(DEFAULT_TABLE_NAMES.seminars, {
     tableName: DEFAULT_TABLE_NAMES.seminars
 })
 
+const queue = conn.define(DEFAULT_TABLE_NAMES.queue, {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
+    fid:{ //formId
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    date_id:{ //seminarDate id
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+    no_on_queue:{ // form on queue for specific date
+        type:DataTypes.INTEGER,
+        allowNull:false
+    },
+}, {tableName:DEFAULT_TABLE_NAMES.queue})
+
 const forms = conn.define(DEFAULT_TABLE_NAMES.forms, {
     id: {
         type: DataTypes.INTEGER,
@@ -292,11 +313,46 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms, {
     isPresented: {
         type: DataTypes.BOOLEAN,
         defaultValue: false
+    },
+    isAddedToQueue:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
     }
 
 }, {
     tableName: DEFAULT_TABLE_NAMES.forms
 })
+
+const seminarDates = (year) => conn.define(DEFAULT_TABLE_NAMES.seminar_dates + `_${year}`, {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+        unique: true
+    },
+    date:{
+        type: DataTypes.STRING(20),
+        allowNull:false,
+        unique:true
+    },
+    time:{
+        type:DataTypes.STRING(20),
+        allowNull:false,
+    },
+    isDone:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false
+        
+    },
+    max_presenters:{
+        type:DataTypes.INTEGER,
+        defaultValue:4
+    },
+    isMaxLimitReached:{
+        type:DataTypes.BOOLEAN,
+        defaultValue:false 
+    }
+}, {tableName:DEFAULT_TABLE_NAMES.seminar_dates + `_${year}`})
 
 const applicationDocuments = conn.define(DEFAULT_TABLE_NAMES.documents, {
     id: {
@@ -485,5 +541,7 @@ module.exports = {
     error_logs,
     forms,
     feedbacks,
-    applicationDocuments
+    applicationDocuments,
+    queue,
+    seminarDates
 }

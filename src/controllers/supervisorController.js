@@ -38,8 +38,6 @@ exports.getSpecificStudentDetails = async(req, res) =>{
 
     const seminars = await getAllSeminarApplicationsForUser(sid, session)
     return success(res, {student: student[0], seminars:seminars})
-    // details, seminars
-
 
 }
 
@@ -54,7 +52,6 @@ exports.getStudentApplication = async(req, res) =>{
     const applicationDetails = await getSeminarRegistrationForSpecificUser(sid, fid)
     return success(res, applicationDetails)
 }
-
 
 exports.approveDisprove = async (req, res) => {
     const user_id = req?.user?.uid
@@ -84,7 +81,7 @@ exports.approveDisprove = async (req, res) => {
     let update_query = {}
     const promises = []
 
-    if (status == approve) {
+    if (status == "approve") {
         update_query.status = 1
     } else {
         update_query.status = 3
@@ -103,3 +100,4 @@ exports.approveDisprove = async (req, res) => {
     return success(res, {}, `Application ${req?.body?.status}d. `)
 
 } 
+

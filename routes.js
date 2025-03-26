@@ -37,6 +37,7 @@ router.post("/student/seminar/register", studentAuth, uploadMiddleWare, studentC
 router.get("/student/seminar/application/fetchAll", studentAuth, studentController.getSeminarApplicationList)
 router.get("/student/seminar/application/fetchSingle", studentAuth, studentController.getSingleSeminarApplication)
 router.put("/student/seminar/application/update", studentAuth, uploadMiddleWare, studentController.updateSeminarRegistration)
+// router.get("/getIp", studentController.getIP)
 
 router.post("/file/upload", uploadMiddleWare, studentController.uploadFile)
 

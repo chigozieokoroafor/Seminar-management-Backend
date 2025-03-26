@@ -1,4 +1,4 @@
-const { sessions, students, users, error_logs, allCourses, seminars, forms, feedbacks, applicationDocuments } = require("./model");
+const { sessions, students, users, error_logs, allCourses, seminars, forms, feedbacks, applicationDocuments, seminarDates, queue } = require("./model");
 const { P, DEFAULT_TABLE_NAMES, DEFAULT_VENUE } = require("../helpers/consts");
 const { pool } = require("./conn");
 const { Op } = require("sequelize")
@@ -109,8 +109,57 @@ exports.getSeminars = async (session, limit, offset) => {
     // return (await pool.promise().execute(`SELECT ${P.uid}, ${P.first_name}, ${P.last_name}, ${P.middleName}, ${P.designation}, ${P.email}, ${P.phone}, ${P.img}, ${P.password}, ${P.isVerified}, ${P.userType}, student.${P.matricNo}, student.${P.program}, student.${P.program} FROM ${process.env.DB_NAME}.${DEFAULT_TABLE_NAMES.users} user LEFT JOIN ${DEFAULT_TABLE_NAMES.students} student on student.sid = user.uid where user.uid = '${uid}' AND user.userType = ${userType} ;`))[0]
 }
 
-exports.createNewSeminarDate = async (session, date) => {
-    return await seminars.create({ scheduledDate: date, session, venue: DEFAULT_VENUE })
+exports.createNewSeminarDate = async (session, date, time) => {
+    // return await seminars.create({ scheduledDate: date, session, venue: DEFAULT_VENUE })
+    return await seminarDates(session).create({ date, time })
+}
+
+exports.getFreeSeminarDate = async (session) => {
+    return await seminarDates(session).findOne(
+        { 
+            where: { 
+                isDone: false, 
+                isMaxLimitReached: false 
+            }, 
+            raw: true,
+            order:[[P.date, "ASC"]]
+        }
+    )
+}
+
+exports.getSeminarOnSpecDateOnQueue = async(date_id) =>{
+    const query = `SELECT queue.${P.fid}, queue.${P.date_id}, queue.${P.no_on_queue}, form.${P.id}, form.${P.detail} FROM ${DEFAULT_TABLE_NAMES.queue} queue  LEFT JOIN ${DEFAULT_TABLE_NAMES.forms} form ON form.${P.id} = queue.${P.fid}  WHERE ${P.date_id} = ${date_id}`
+    return (await pool.promise().execute(query))[0]
+    // return await queue.findAll({where:{date_id}})
+} 
+
+exports.getSeminarsNotOnQueue = async (session) => {
+    return await forms.findAll(
+        { 
+            where:{
+                isAddedToQueue:false,
+                session:session
+            },
+            raw:true
+        }
+    )
+}
+
+exports.addToQueue = async(data) =>{
+    await forms.update({isAddedToQueue:true}, {where:{id:data[P.fid]}})
+    return await queue.create(data)
+}
+
+exports.updateNumberOnQueue = async(fid, date_id, no_on_queue) =>{
+    await queue.update({no_on_queue}, {where:{fid, date_id}})
+}
+
+exports.dateMaxLimitReached = async (date_id, session) =>{
+    await seminarDates(session).update({isMaxLimitReached:true}, {where:{id:date_id}})
+}
+
+exports.getSpecSeminarById = async(fid) =>{
+    return await forms.findOne({where:{id:fid}})
 }
 
 exports.fetchAllTopics = async () => {
@@ -167,7 +216,7 @@ exports.getSeminarRegistrationForSpecificUser = async (user_id, fid) => {
     // })
 }
 
-exports.getAllSeminarApplicationsForUser = async (user_id, session) =>{
+exports.getAllSeminarApplicationsForUser = async (user_id, session) => {
     // const query = `SELECT ${P.id}, ${P.detail}, ${P.seminarType}, ${P.lid},  FROM ${DEFAULT_TABLE_NAMES.forms} as forms  LEFT JOIN ON ${DEFAULT_TABLE_NAMES.users}.id = forms.${P.lid} WHERE ${P.sid} = '${user_id}' AND ${P.session} = ${session} ORDER BY ${P.createdAt} ASC;`
     const query = `SELECT form.id, form.detail, form.lid, form.seminarType, form.status, CONCAT(lecturer.designation, " ",lecturer.firstName, ' ', lecturer.lastName) AS supervisor FROM ${DEFAULT_TABLE_NAMES.forms} form  LEFT JOIN ${DEFAULT_TABLE_NAMES.users} lecturer ON lecturer.${P.uid} = form.${P.lid} WHERE ${P.sid} = '${user_id}' AND ${P.session} = '${session}' ORDER BY form.${P.createdAt} ASC;`
     // console.log("query:::", query)
@@ -211,36 +260,36 @@ exports.createFeedback = async (data, session) => {
 exports.getActiveUserEmails = async () => {
     return await users.findAll({
         where: {
-            status:"active"
+            status: "active"
         },
-        attributes:[P.email],
-        raw:true
+        attributes: [P.email],
+        raw: true
     })
 }
 
-exports.uploadDocumentDataForForm = async(data) =>{
+exports.uploadDocumentDataForForm = async (data) => {
     return await applicationDocuments.create(data)
 }
 
-exports.deleteRegistration = async(fid) =>{
-    return await forms.destroy({where:{id:fid}})
+exports.deleteRegistration = async (fid) => {
+    return await forms.destroy({ where: { id: fid } })
 }
 
-exports.updateDocumentData = async(fid, update) =>{
-    return await applicationDocuments.update(update, {where:{fid}})
+exports.updateDocumentData = async (fid, update) => {
+    return await applicationDocuments.update(update, { where: { fid } })
 }
 
-exports.getStudentsUndersupervisor = async(supervisor) =>{
-    const query =  `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor='${supervisor}' ;`
-    return (await pool.promise().query(query))[0]   
+exports.getStudentsUndersupervisor = async (supervisor) => {
+    const query = `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor='${supervisor}' ;`
+    return (await pool.promise().query(query))[0]
 }
 
-exports.getOtherStudentsNotUndersupervisor = async(supervisor) =>{
-    const query =  `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor !='${supervisor}' ;`
-    return (await pool.promise().query(query))[0]   
+exports.getOtherStudentsNotUndersupervisor = async (supervisor) => {
+    const query = `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE supervisor !='${supervisor}' ;`
+    return (await pool.promise().query(query))[0]
 }
 
-exports.getStudentDetailById = async(student) =>{
+exports.getStudentDetailById = async (student) => {
     const query = `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE ${P.sid} ='${student}' ;`
     return (await pool.promise().query(query))[0]
 }

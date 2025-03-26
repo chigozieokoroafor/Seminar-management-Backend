@@ -3,6 +3,7 @@ const { P } = require("../helpers/consts")
 const { errorEmitter, errorEvents } = require("../helpers/emitters/errors")
 const { generalError, success, internalServerError, notFound } = require("../helpers/statusCodes")
 const { pInCheck, pExCheck, Google } = require("../helpers/util")
+const getIp = require("ipware")().get_ip
 
 exports.getProfile = async (req, res, next) => {
     const user_id = req?.user?.uid
@@ -201,7 +202,7 @@ exports.updateSeminarRegistration = async (req, res) => {
     }
 
 }
-
+// this is next()work on the location based thing.
 exports.markAttendance = async (req, res) =>{
     try{ 
         const missing = pExCheck(req.body, [P.sid, P.token]) //sid - seminarId, token- token pin.
@@ -220,5 +221,14 @@ exports.uploadFile = async (req, res) =>{
 
     return success(res, {}, "testing")
 }
+
+// issues with geolocation api, currentyl stumped
+// exports.getIP = async(req, res) =>{
+//     console.log(req.headers)
+//     // console.log ("ip:::",getIp(req))
+//     // console.log(req.socket?.remoteAddress)
+//     success(res, {}, "asda")
+//     console ("location:::",window.location.origin)
+// }
 
 

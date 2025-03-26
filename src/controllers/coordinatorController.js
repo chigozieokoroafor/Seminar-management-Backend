@@ -1,21 +1,32 @@
 const { createNewSeminarDate, getSeminars, fetchAllTopics, fetchAllStudents, getActiveUserEmails } = require("../db/query")
-const { PAGE_LIMIT } = require("../helpers/consts")
+const { PAGE_LIMIT, P } = require("../helpers/consts")
 const { baseEmitter, baseEvents } = require("../helpers/emitters/base")
 const { generalError, created, invalid, success } = require("../helpers/statusCodes")
+const { pExCheck } = require("../helpers/util")
 
 exports.createSeminardate = async (req, res) =>{
-    const scheduled_date = req?.body?.dateTime
-    if (!scheduled_date){
-        return generalError(res, "scheduled date and time required")
+    
+    const missing = pExCheck(req?.body, [P.datetime])
+
+    if (missing.length > 0){
+        return generalError(res, `Missing fields: ${missing.toLocaleString()}`)
     }
     const session = req?.user?.session
-    const date_ = new Date(scheduled_date)
-    console.log("date::::", date_)
+    let proposed_date
     try{
-        await createNewSeminarDate(session, date_)
+        proposed_date = new Date(req.body[P.datetime]).toISOString()
     }catch(error){
         console.log("error::::",error)
-        return generalError(res, "Invalid date format. Required format : mm/dd/yy hh:mm am")
+        return generalError(res, "Invalid date format. Required format : yyyy/mm/dd hh:mm:ss")
+    }
+    
+    const [date, time] = proposed_date.split("T")
+    try{
+        await createNewSeminarDate(session, date, time)
+    }catch(error){
+        console.log("error::::",error)
+        if (error.name == "SequelizeUniqueConstraintError")return generalError(res, "Seminar date exists")
+        return generalError(res, "Invalid date format. Required format : yyyy/mm/dd hh:mm:ss")
     }
     return created(res, "New seminar date added") 
 }
