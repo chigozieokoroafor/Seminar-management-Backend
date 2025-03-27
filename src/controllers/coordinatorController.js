@@ -31,16 +31,6 @@ exports.createSeminardate = async (req, res) =>{
     return created(res, "New seminar date added") 
 }
 
-exports.getAllSeminars = async(req, res) =>{
-    const session = req?.query?.session ?? req?.user?.session 
-    const page = req?.query?.page
-    if (!page || page == 0){
-        return generalError(res, "invalid page parameter")
-    }
-    const data  = await getSeminars(session, PAGE_LIMIT, (Number(page) - 1 ) * PAGE_LIMIT)
-    return success(res, data, "fetched")
-}
-
 exports.getAllTopics = async(req, res) =>{
     const data = await fetchAllTopics()
     return success(res, data, "fetched")

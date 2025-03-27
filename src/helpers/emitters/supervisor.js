@@ -1,5 +1,5 @@
 const events = require("events")
-const { mailSend } = require("../util")
+const { mailSend, addSeminarToQueue } = require("../util")
 const { getSeminarsNotOnQueue, getSpecSeminarById, getFreeSeminarDate, getSeminarOnSpecDateOnQueue } = require("../../db/query")
 const { P } = require("../consts")
 
@@ -192,31 +192,7 @@ supervisorEmitter.on(supervisorEvents.newReg, (email, supeName, studentName, mat
 
 supervisorEmitter.on(supervisorEvents.addToSeminar, async (formId, programType, session) =>{
     // flow :  get dates that still have space. -> get applications that have been approved -> doctorates first -> 
-
-    const freeDate = await getFreeSeminarDate(session)
-    if (!freeDate){
-        console.log("no free dates available")
-        return
-    }
-
-    // const spec_seminar = await getSpecSeminarById(formId)
-    // spec_seminar[P.detail][P.programType]
-
-    const seminars_already_on_queue = await getSeminarOnSpecDateOnQueue(freeDate.id)
-    
-    
-
-    
-
-    
-
-
-
-    // getSeminarsNotOnQueue(session)
-    // add user to the queue, 
-    // get queue, for specific session and dateId
-    // PHD students first, if 
-    // if exists, split into masters and phd.
+    await addSeminarToQueue(formId, programType, session)
 })
 
 module.exports = {

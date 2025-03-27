@@ -293,3 +293,50 @@ exports.getStudentDetailById = async (student) => {
     const query = `SELECT student.${P.sid}, student.${P.program}, student.${P.isActive}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name, user.${P.email}, user.${P.phone}, user.${P.status} FROM ${DEFAULT_TABLE_NAMES.students} student LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON student.${P.sid} = user.${P.uid}  WHERE ${P.sid} ='${student}' ;`
     return (await pool.promise().query(query))[0]
 }
+
+// exports.getAllSeminars = async () =>{
+//     const now = new Date().toISOString().split("T")[0]
+//     const query = `
+//     SELECT * FROM ${DEFAULT_TABLE_NAMES.seminar_dates}
+//     LEFT JOIN ${DEFAULT_TABLE_NAMES.}
+//     WHERE DATE_FORMAT(${P.date}, %Y-%m-%d) >= ${now}`
+// }
+
+exports.getUpcomingSeminarDates = async ( limit, offset) =>{
+    const now = new Date().toISOString().split("T")[0]
+
+    return await seminarDates.findAll(
+        {
+            where:{
+                date:{
+                    [Op.gte]: now
+                },
+                // isDone:false
+            },
+            attributes:[P.id, P.date, P.isDone, P.max_presenters, P.isMaxLimitReached],
+            limit:limit,
+            offset:offset,
+            order:[[P.date, "ASC"]],
+            raw:true
+        }
+    )
+}
+
+exports.getAllSeminars = async(limit, offset) =>{
+    return await seminarDates.findAll(
+        {
+            where:{},
+            attributes:[P.id, P.date, P.isDone, P.max_presenters, P.isMaxLimitReached],
+            limit:limit,
+            offset:offset,
+            order:[[P.date, "ASC"]],
+            raw:true
+        }
+    )
+}
+
+exports.getPresentersOnDay = async(date_id) =>{
+    const query = `SELECT queue.${P.fid}, queue.${P.no_on_queue}, form.${P.id}, form.${P.detail}, user.${P.uid}, CONCAT(user.${P.first_name}, " ", user.${P.last_name}) as name FROM ${DEFAULT_TABLE_NAMES.queue} queue  LEFT JOIN ${DEFAULT_TABLE_NAMES.forms} form ON form.${P.id} = queue.${P.fid} LEFT JOIN ${DEFAULT_TABLE_NAMES.users} user ON user.${P.uid} = form.${P.sid} WHERE ${P.date_id} = ${date_id}`
+    return (await pool.promise().query(query))[0]
+    // console.log(query)
+}

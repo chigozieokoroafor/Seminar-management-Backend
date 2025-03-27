@@ -1,5 +1,6 @@
-const { getSeminarRegistrationBySupervisor, updateFormRegistration, getSpecificSeminarRegBySupervisor, createFeedback, logError, getStudentsUndersupervisor, getOtherStudentsNotUndersupervisor, getStudentDetailById, getAllSeminarApplicationsForUser, getSeminarRegistrationForSpecificUser } = require("../db/query")
+const { getSeminarRegistrationBySupervisor, updateFormRegistration, getSpecificSeminarRegBySupervisor, createFeedback, logError, getStudentsUndersupervisor, getOtherStudentsNotUndersupervisor, getStudentDetailById, getAllSeminarApplicationsForUser, getSeminarRegistrationForSpecificUser, getUpcomingSeminarDates, getAllSeminars } = require("../db/query")
 const { P } = require("../helpers/consts")
+const { supervisorEmitter, supervisorEvents } = require("../helpers/emitters/supervisor")
 const { success, generalError, notFound } = require("../helpers/statusCodes")
 const { pExCheck, pInCheck } = require("../helpers/util")
 
@@ -55,6 +56,7 @@ exports.getStudentApplication = async(req, res) =>{
 
 exports.approveDisprove = async (req, res) => {
     const user_id = req?.user?.uid
+    const session = req?.user?.session
 
     const notRequired = pInCheck(req?.body, [P.fid, P.status, P.feedback])
     if (notRequired.length > 0) {
@@ -83,6 +85,7 @@ exports.approveDisprove = async (req, res) => {
 
     if (status == "approve") {
         update_query.status = 1
+        supervisorEmitter.emit(supervisorEvents.addToSeminar, (fid,specReg.detail.programType ,session))
     } else {
         update_query.status = 3
         promises.push(createFeedback({ lid: user_id, sid: specReg?.sid, fid: fid, feedback: feedback }, specReg?.session))
@@ -100,4 +103,23 @@ exports.approveDisprove = async (req, res) => {
     return success(res, {}, `Application ${req?.body?.status}d. `)
 
 } 
+
+exports.getSeminarsFromToday = async(req, res) =>{
+    // get all seminars with
+    const session = req?.user?.session
+    const limit = 5
+    const offset = 0 // t be 5
+    const seminars = await getUpcomingSeminarDates(session, limit, offset)
+
+    return success(res, seminars, "Fetched")
+}
+
+exports.getSeminars = async(req, res) => {
+    const session = req?.user?.session
+    const limit = 5
+    const offset = 0 // t be 5
+    const seminars = await getAllSeminars(session, limit, offset)
+
+    return success(res, seminars, "Fetched")
+}
 

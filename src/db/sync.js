@@ -42,12 +42,12 @@ const dev_sync = async (year) => {
     // await feedbacks(year).sync({ alter: true })
     // await applicationDocuments.sync({alter:true})
     // await queue.sync({alter:true})
-    // await seminarDates(year).sync({alter:true})
+    // await seminarDates.sync({alter:true})
 
 }
 
 year = "2021/2022"
-dev_sync(year)
+// dev_sync(year)
 if (process.env.ENV != "dev") {
     dev_sync(year)
 }

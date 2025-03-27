@@ -70,7 +70,10 @@ exports.P = {
     time:"time",
     datetime:"dateTime",
     date_id:"date_id",
-    no_on_queue:"no_on_queue"
+    no_on_queue:"no_on_queue",
+    isDone:"isDone",
+    max_presenters:"max_presenters",
+    isMaxLimitReached:"isMaxLimitReached"
 }
 
 exports.USER_TYPES = {

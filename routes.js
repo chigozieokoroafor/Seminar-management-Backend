@@ -6,6 +6,7 @@ const { studentAuth, adminAuth, supAuth, coordAuth, uploadMiddleWare } = require
 const coordinatorController = require("./src/controllers/coordinatorController");
 const studentController = require("./src/controllers/studentController");
 const supervisorController = require("./src/controllers/supervisorController")
+const seminarController = require("./src/controllers/seminarController")
 
 const router = Router();
 
@@ -53,9 +54,11 @@ router.get("/supervisor/registrations/fetch", supAuth, supervisorController.getR
 router.get("/supervisor/students/fetch", supAuth, supervisorController.getStudents)
 router.get("/supervisor/student/detail", supAuth, supervisorController.getSpecificStudentDetails)
 router.get("/supervisor/student/application/detail", supAuth, supervisorController.getStudentApplication)
+router.get("/seminar/upcoming", seminarController.getSeminarsFromToday)
+router.get("/seminar/all", seminarController.getSeminars)
 
 router.post("/coordinator/schedule/create", coordAuth, coordinatorController.createSeminardate)
-router.get("/coordinator/schedule/fetch", coordAuth, coordinatorController.getAllSeminars)
+// router.get("/coordinator/schedule/fetch", coordAuth, coordinatorController.getAllSeminars)z
 router.get("/coordinator/topics/fetch", coordAuth, coordinatorController.getAllTopics)
 router.get("/coordinator/students/fetch", coordAuth, coordinatorController.viewstudentList)
 router.get("/coordinator/invites/send", coordAuth, coordinatorController.sendOutSeminarInvite)

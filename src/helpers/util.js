@@ -368,7 +368,7 @@ async function addSeminarToQueue(formId, programType, session){
   // flow :  get dates that still have space. -> get applications that have been approved -> doctorates first -> 
 
   const freeDate = await getFreeSeminarDate(session)
-  console.log("free:::dates::::", freeDate)
+  // console.log("free:::dates::::", freeDate)
   if (!freeDate){
       console.log("no free dates available")
       return
@@ -390,20 +390,20 @@ async function addSeminarToQueue(formId, programType, session){
 
     
   }else{
-    console.log("here:::seminars:::before push::::",seminars_already_on_queue)
+    // console.log("here:::seminars:::before push::::",seminars_already_on_queue)
     seminars_already_on_queue.push({fid:formId, detail:{programType}})
 
     // console.log(String(seminars_already_on_queue[0].detail.programType).localeCompare("bsc"))
     seminars_already_on_queue.sort((first, next) => String(next.detail.programType).localeCompare(first.detail[P.programType]))
 
-    console.log("here:::seminars:::after push sort::::",seminars_already_on_queue)
+    // console.log("here:::seminars:::after push sort::::",seminars_already_on_queue)
 
     if (seminars_already_on_queue.length >3){
       await dateMaxLimitReached(freeDate.id, session)
     }
     const promises = []
     seminars_already_on_queue.forEach((item, index) => {
-      if (item.fid == formId){
+      if (item.fid == formId && item?.date_id != freeDate.id ){
         promises.push(addToQueue({
           fid:formId,
           date_id:freeDate.id,
@@ -414,14 +414,14 @@ async function addSeminarToQueue(formId, programType, session){
       }
     } )
     const returns = await Promise.allSettled(promises)
-    console.log("returns:::",returns)
+    // console.log("returns:::",returns)
 
     // console.log("seminars ::::queue:::", seminars_already_on_queue)
   }
   
 }
 
-addSeminarToQueue(7, "Msc", "2021/2022")
+// addSeminarToQueue(5, "PhD", "2021/2022")
 
 class Google {
   async authenticate() {

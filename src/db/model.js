@@ -323,7 +323,7 @@ const forms = conn.define(DEFAULT_TABLE_NAMES.forms, {
     tableName: DEFAULT_TABLE_NAMES.forms
 })
 
-const seminarDates = (year) => conn.define(DEFAULT_TABLE_NAMES.seminar_dates + `_${year}`, {
+const seminarDates = conn.define(DEFAULT_TABLE_NAMES.seminar_dates, {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -352,7 +352,7 @@ const seminarDates = (year) => conn.define(DEFAULT_TABLE_NAMES.seminar_dates + `
         type:DataTypes.BOOLEAN,
         defaultValue:false 
     }
-}, {tableName:DEFAULT_TABLE_NAMES.seminar_dates + `_${year}`})
+}, {tableName:DEFAULT_TABLE_NAMES.seminar_dates})
 
 const applicationDocuments = conn.define(DEFAULT_TABLE_NAMES.documents, {
     id: {
